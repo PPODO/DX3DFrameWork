@@ -41,7 +41,7 @@ public:
 			m_Texture = nullptr;
 		}
 		if (m_ImageSrc) {
-			delete m_ImageSrc;
+			delete[] m_ImageSrc;
 			m_ImageSrc = nullptr;
 		}
 	}
