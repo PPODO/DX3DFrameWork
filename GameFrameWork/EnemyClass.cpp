@@ -4,7 +4,7 @@
 #include "InputClass.h"
 
 bool EnemyClass::Init(LPDIRECT3DDEVICE9 Device, LPCWSTR ImageSrc, bool bUseCustomRect, RECT CustomRect) {
-	SystemClass::GetInst()->GetInputClass()->BindDelegate(VK_RIGHT, std::bind(&EnemyClass::MoveRight, this, 1.f), 1.f);
+	SystemClass::GetInst()->GetInputClass()->BindDelegate(VK_RIGHT, std::bind(&EnemyClass::MoveRight, this, 1.f));
 
 	Actor::Init(Device, L"Enemy.png");
 	return true;

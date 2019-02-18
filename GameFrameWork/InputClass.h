@@ -8,7 +8,6 @@ typedef std::function<void(float)> Function;
 #pragma pack(push, 1)
 typedef struct {
 	bool m_bIsPressed;
-	float m_Value;
 	Function m_Delegate;
 }DelegateInfomations;
 #pragma pack(pop)
@@ -27,6 +26,6 @@ public:
 	void KeyIsUp(unsigned short Key);
 
 public:
-	void BindDelegate(unsigned short Key, Function Delegate, float Value);
+	void BindDelegate(unsigned short Key, Function Delegate);
 
 };

@@ -13,7 +13,7 @@ void InputClass::Frame() {
 	if (!m_BindKeys.empty()) {
 		for (auto Iterator = m_BindKeys.cbegin(); Iterator != m_BindKeys.cend(); ++Iterator) {
 			if (Iterator->second.m_bIsPressed) {
-				Iterator->second.m_Delegate(Iterator->second.m_Value);
+				Iterator->second.m_Delegate(0);
 			}
 		}
 	}
@@ -33,7 +33,7 @@ void InputClass::KeyIsUp(unsigned short Key) {
 	}
 }
 
-void InputClass::BindDelegate(unsigned short Key, Function Delegate, float Value) {
+void InputClass::BindDelegate(unsigned short Key, Function Delegate) {
 	DelegateInfomations DI;
 	memset(&DI, 0, sizeof(DI));
 	DI.m_Delegate = Delegate;
