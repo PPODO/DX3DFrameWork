@@ -16,4 +16,5 @@ public:
 
 private:
 	void MoveRight(float Value);
+	void PopupMessageBox();
 };

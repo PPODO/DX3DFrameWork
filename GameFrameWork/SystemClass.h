@@ -34,6 +34,7 @@ public:
 public:
 	LRESULT CALLBACK MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	inline InputClass* GetInputClass() const { return m_Input; }
+	inline HWND GetWindowHandle() const { return m_hWnd; }
 
 };
 
