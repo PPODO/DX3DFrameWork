@@ -29,6 +29,7 @@ inline bool D3DXClass::BeginScene() {
 	if (SUCCEEDED(m_DirectDevice->BeginScene())) {
 		return SUCCEEDED(m_DirectSprite->Begin(D3DXSPRITE_ALPHABLEND));
 	}
+	return false;
 }
 
 inline void D3DXClass::EndScene() {

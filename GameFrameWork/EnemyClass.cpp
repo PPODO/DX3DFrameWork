@@ -3,6 +3,9 @@
 #include "SystemClass.h"
 #include "InputClass.h"
 
+EnemyClass::~EnemyClass() {
+}
+
 bool EnemyClass::Init(LPDIRECT3DDEVICE9 Device, LPCWSTR ImageSrc, bool bUseCustomRect, RECT CustomRect) {
 	Actor::Init(Device, L"Enemy.png");
 

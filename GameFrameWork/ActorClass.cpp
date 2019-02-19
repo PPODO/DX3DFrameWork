@@ -29,11 +29,8 @@ void Actor::Destroy() {
 }
 
 bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
-	Enemy = new EnemyClass;
-	Player = new PlayerClass;
-
-	m_Actors.push_back(Enemy);
-	m_Actors.push_back(Player);
+	Enemy = new EnemyClass(m_Actors);
+	Player = new PlayerClass(m_Actors);
 
 	m_LoadingThread = std::thread([&Device, this]() {
 		for (Actor* AActor : m_Actors) {
@@ -43,7 +40,6 @@ bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 				}
 			}
 			catch (const char* Exception){
-
 			}
 		}	
 	});

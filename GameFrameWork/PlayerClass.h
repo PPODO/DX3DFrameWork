@@ -6,8 +6,8 @@ private:
 
 
 public:
-	PlayerClass();
-	~PlayerClass();
+	PlayerClass(std::vector<Actor*>& Actors) : Actor(Actors) {};
+	virtual ~PlayerClass() override;
 
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCWSTR ImageSrc, bool bUseCustomRect, RECT CustomRect) override;
 	virtual void Update() override;

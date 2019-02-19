@@ -3,9 +3,6 @@
 #include "SystemClass.h"
 #include "InputClass.h"
 
-PlayerClass::PlayerClass() {
-}
-
 PlayerClass::~PlayerClass() {
 }
 
