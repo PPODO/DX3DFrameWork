@@ -6,5 +6,4 @@ TO DO
 
 3. Multi Threading 
 
-
-1. Axis, Action으로 키 바인딩 분류
+1. ~~Axis, Action으로 키 바인딩 분류
