@@ -1,10 +1,2 @@
-﻿  ActorClass.cpp
-d:\directx\myframework\gameframework\gameframework\actorclass.cpp(42): warning C4101: 'Exception' :참조되지 않은 지역 변수입니다.
-  D3DXClass.cpp
-  EnemyClass.cpp
-  GraphicClass.cpp
-  PlayerClass.cpp
-  SystemClass.cpp
-  main.cpp
-  코드를 생성하고 있습니다...
+﻿  PlayerClass.cpp
   GameFrameWork.vcxproj -> D:\DirectX\MyFrameWork\GameFrameWork\Debug\GameFrameWork.exe
