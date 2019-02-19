@@ -3,30 +3,19 @@
 #include <functional>
 #include <map>
 
-typedef std::function<void(float)> AxisFunction;
-typedef std::function<void()> ActionFunction;
-
-enum EActionInputState { IE_Pressed, IE_Released };
+typedef std::function<void(float)> Function;
 
 #pragma pack(push, 1)
 typedef struct {
 	bool m_bIsPressed;
-	AxisFunction m_Delegate;
-}DelegateAxisInfomations;
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-typedef struct {
-	EActionInputState m_InputState;
-	ActionFunction m_Delegate;
-}DelegateActionInfomations;
+	Function m_Delegate;
+}DelegateInfomations;
 #pragma pack(pop)
 
 class InputClass {
 private:
 	bool m_Keys[256];
-	std::map<unsigned short, DelegateAxisInfomations> m_BindAxisKeys;
-	std::map<unsigned short, DelegateActionInfomations> m_BindActionKeys;
+	std::map<unsigned short, DelegateInfomations> m_BindKeys;
 
 public:
 	InputClass();
@@ -37,7 +26,6 @@ public:
 	void KeyIsUp(unsigned short Key);
 
 public:
-	void BindAxisDelegate(unsigned short Key, AxisFunction Delegate);
-	void BindActionDelegate(unsigned short Key, EActionInputState InputState, ActionFunction Delegate);
+	void BindDelegate(unsigned short Key, Function Delegate);
 
 };
