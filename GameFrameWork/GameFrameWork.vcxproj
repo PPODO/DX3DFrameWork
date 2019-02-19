@@ -149,6 +149,7 @@
     <ClInclude Include="EnemyClass.h" />
     <ClInclude Include="GraphicClass.h" />
     <ClInclude Include="InputClass.h" />
+    <ClInclude Include="PlayerClass.h" />
     <ClInclude Include="SystemClass.h" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,7 @@
     <ClCompile Include="GraphicClass.cpp" />
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PlayerClass.cpp" />
     <ClCompile Include="SystemClass.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

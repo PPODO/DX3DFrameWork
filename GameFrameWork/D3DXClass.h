@@ -15,7 +15,6 @@ public:
 	~D3DXClass();
 
 	bool Init(int, int, HWND);
-	void DrawActors(const TextureClass& Texture);
 
 public:
 	inline bool BeginScene();

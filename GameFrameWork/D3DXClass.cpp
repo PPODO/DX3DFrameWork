@@ -49,9 +49,3 @@ bool D3DXClass::Init(int Width, int Height, HWND hWnd) {
 	}
 	return true;
 }
-
-void D3DXClass::DrawActors(const TextureClass& Texture) {
-	if (Texture.m_Texture) {
-		m_DirectSprite->Draw(Texture.m_Texture, &Texture.m_ImageRect, &Texture.m_Center, &Texture.m_Position, Texture.m_Color);
-	}
-}

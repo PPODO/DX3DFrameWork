@@ -18,7 +18,7 @@ bool GraphicClass::Render() {
 	if (m_D3DX->BeginScene()) {
 		for (Actor* AActor : m_TempActorClass->GetActors()) {
 			if (AActor) {
-				m_D3DX->DrawActors(*AActor->GetTexture());
+				AActor->Render(m_D3DX->GetSprite());
 			}
 		}
 	}

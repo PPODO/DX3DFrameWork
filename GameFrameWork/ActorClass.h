@@ -4,17 +4,14 @@
 #include <iostream>
 #include <d3dx9.h>
 
-class TextureClass;
-class EnemyClass;
-
 class Actor {
 protected:
-	TextureClass* m_Image;
+	class TextureClass* m_Image;
 
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCWSTR ImageSrc = nullptr, bool bUseCustomRect = false, RECT CustomRect = { -1 });
 	virtual void Update() = 0;
-	virtual void Render() = 0;
+	virtual void Render(LPD3DXSPRITE Sprite);
 	virtual void Destroy();
 
 public:
@@ -24,7 +21,8 @@ public:
 
 class ActorClass {
 private:
-	EnemyClass* Enemy;
+	class EnemyClass* Enemy;
+	class PlayerClass* Player;
 
 private:
 	std::vector<Actor*> m_Actors;
