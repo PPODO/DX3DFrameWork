@@ -28,6 +28,9 @@ private:
 	std::map<unsigned short, DelegateAxisInfomations> m_BindAxisKeys;
 	std::map<unsigned short, DelegateActionInfomations> m_BindActionKeys;
 
+private:
+	inline void CheckBindKeys(unsigned short Key, EActionInputState InputState, bool bPressed);
+
 public:
 	InputClass();
 	~InputClass();
@@ -41,3 +44,17 @@ public:
 	void BindActionDelegate(unsigned short Key, EActionInputState InputState, ActionFunction Delegate);
 
 };
+
+inline void InputClass::CheckBindKeys(unsigned short Key, EActionInputState InputState, bool bPressed) {
+	if (m_BindActionKeys.find(Key) != m_BindActionKeys.cend()) {
+		auto BindActionKey = m_BindActionKeys.find(Key);
+		if (BindActionKey->second.m_InputState == InputState) {
+			BindActionKey->second.m_Delegate();
+		}
+	}
+	else {
+		if (m_BindAxisKeys.find(Key) != m_BindAxisKeys.cend()) {
+			m_BindAxisKeys.find(Key)->second.m_bIsPressed = bPressed;
+		}
+	}
+}

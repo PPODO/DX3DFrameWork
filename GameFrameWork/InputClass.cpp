@@ -21,32 +21,12 @@ void InputClass::Frame() {
 
 void InputClass::KeyIsDown(unsigned short Key) {
 	m_Keys[Key] = true;
-	if (m_BindActionKeys.find(Key) != m_BindActionKeys.cend()) {
-		auto BindActionKey = m_BindActionKeys.find(Key);
-		if (BindActionKey->second.m_InputState == IE_Pressed) {
-			BindActionKey->second.m_Delegate();
-		}
-	}
-	else {
-		if (m_BindAxisKeys.find(Key) != m_BindAxisKeys.cend()) {
-			m_BindAxisKeys.find(Key)->second.m_bIsPressed = true;
-		}
-	}
+	CheckBindKeys(Key, IE_Pressed, true);
 }
 
 void InputClass::KeyIsUp(unsigned short Key) {
 	m_Keys[Key] = false;
-	if (m_BindActionKeys.find(Key) != m_BindActionKeys.cend()) {
-		auto BindActionKey = m_BindActionKeys.find(Key);
-		if (BindActionKey->second.m_InputState == IE_Released) {
-			BindActionKey->second.m_Delegate();
-		}
-	}
-	else {
-		if (m_BindAxisKeys.find(Key) != m_BindAxisKeys.cend()) {
-			m_BindAxisKeys.find(Key)->second.m_bIsPressed = false;
-		}
-	}
+	CheckBindKeys(Key, IE_Released, false);
 }
 
 void InputClass::BindAxisDelegate(unsigned short Key, AxisFunction Delegate) {
