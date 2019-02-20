@@ -5,4 +5,3 @@ TO DO
 2. Actor Component 설계
 3. Multi Threading 
 4. (중요)SystemClass와 GraphicClass 분리
-5. (중요)Thread Pool 작성
