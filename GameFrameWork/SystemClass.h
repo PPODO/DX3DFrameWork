@@ -11,6 +11,7 @@ private:
 
 	class D3DXClass* m_D3DX;
 	class ActorClass* m_ActorManager;
+	class InputClass* m_Input;
 
 	TimerClass Timer;
 	float DeltaTime;
@@ -30,8 +31,10 @@ public:
 
 	LRESULT CALLBACK MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
+	bool WaitForRender = true;
 public:
 	HWND GetWindowHandle() const { return m_hWnd; }
+	class InputClass* GetInputManager() const { return m_Input; }
 };
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);

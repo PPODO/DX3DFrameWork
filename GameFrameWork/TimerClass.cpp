@@ -14,7 +14,7 @@ bool TimerClass::UpdateFPS(float& DeltaTime) {
 	m_TimeElapsed += DeltaTime;
 	m_FrameCount++;
 
-	if (m_TimeElapsed >= 1) {
+	if (m_TimeElapsed >= 1 / 60) {
 //		std::cout << "FPS : " << ((float)m_FrameCount / m_TimeElapsed) << std::endl;
 
 		m_FrameCount = 0;

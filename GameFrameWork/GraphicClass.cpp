@@ -28,6 +28,7 @@ void GraphicClass::Render(LPDIRECT3DDEVICE9 Device, LPD3DXSPRITE Sprite, std::ve
 					AActor->Render(Sprite);
 				}
 			}
+			SystemClass::GetInst()->WaitForRender = false;
 		}
 		Sprite->End();
 	}

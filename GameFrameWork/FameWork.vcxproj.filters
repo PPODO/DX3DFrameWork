@@ -72,6 +72,9 @@
     <ClCompile Include="PlayerClass.cpp">
       <Filter>소스 파일\SystemClass\ActorClass\Actor\PlayerClass</Filter>
     </ClCompile>
+    <ClCompile Include="InputClass.cpp">
+      <Filter>소스 파일\SystemClass\InputClass</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3DXHeader.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="PlayerClass.h">
       <Filter>소스 파일\SystemClass\ActorClass\Actor\PlayerClass</Filter>
+    </ClInclude>
+    <ClInclude Include="InputClass.h">
+      <Filter>소스 파일\SystemClass\InputClass</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

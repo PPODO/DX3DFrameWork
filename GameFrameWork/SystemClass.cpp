@@ -3,6 +3,7 @@
 #include "GraphicClass.h"
 #include "D3DXClass.h"
 #include "ActorClass.h"
+#include "InputClass.h"
 #include <iostream>
 
 SystemClass* SystemClass::m_Application = nullptr;
@@ -65,6 +66,10 @@ bool SystemClass::Init() {
 	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
 		return false;
 	}
+	m_Input = new InputClass;
+	if (!m_Input) {
+		return false;
+	}
 	m_ActorManager = new ActorClass;
 	if (!m_ActorManager || !m_ActorManager->Init(m_D3DX->GetDevice())) {
 		return false;
@@ -77,9 +82,13 @@ bool SystemClass::Init() {
 }
 
 bool SystemClass::Frame(float DeltaTime) {
+	WaitForRender = true;
 	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite(), m_ActorManager->GetActors()));
 
 	m_ActorManager->Frame(DeltaTime);
+	m_Input->Frame();
+
+	while (WaitForRender);
 	return true;
 }
 
@@ -114,13 +123,17 @@ void SystemClass::ShutdownWindow() {
 }
 
 void SystemClass::Shutdown() {
-	if (m_D3DX) {
-		delete m_D3DX;
-		m_D3DX = nullptr;
-	}
 	if (m_ActorManager) {
 		delete m_ActorManager;
 		m_ActorManager = nullptr;
+	}
+	if (m_Input) {
+		delete m_Input;
+		m_Input = nullptr;
+	}
+	if (m_D3DX) {
+		delete m_D3DX;
+		m_D3DX = nullptr;
 	}
 	MessageQueueClass::GetInst()->PushMessage(MS_DESTROY, []() {});
 
@@ -130,7 +143,12 @@ void SystemClass::Shutdown() {
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
-
+	case WM_KEYDOWN:
+		m_Input->KeyIsDown(wParam);
+		return 0;
+	case WM_KEYUP:
+		m_Input->KeyIsUp(wParam);
+		return 0;
 	}
 	return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }

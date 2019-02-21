@@ -3,7 +3,7 @@
 #include <vector>
 
 class Actor {
-private:
+protected:
 	class TextureClass* m_Texture;
 
 public:

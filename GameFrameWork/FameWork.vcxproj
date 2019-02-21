@@ -145,6 +145,7 @@
     <ClCompile Include="ActorClass.cpp" />
     <ClCompile Include="D3DXClass.cpp" />
     <ClCompile Include="GraphicClass.cpp" />
+    <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageQueueClass.cpp" />
     <ClCompile Include="PlayerClass.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="D3DXClass.h" />
     <ClInclude Include="D3DXHeader.h" />
     <ClInclude Include="GraphicClass.h" />
+    <ClInclude Include="InputClass.h" />
     <ClInclude Include="MessageQueueClass.h" />
     <ClInclude Include="PlayerClass.h" />
     <ClInclude Include="Queue.h" />
