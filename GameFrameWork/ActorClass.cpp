@@ -1,61 +1,11 @@
 #include "ActorClass.h"
-#include "GraphicClass.h"
-#include "EnemyClass.h"
+#include "Actor.h"
 #include "PlayerClass.h"
 
-bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCWSTR ImageSrc, bool bUseCustomRect, RECT CustomRect) {
-	if (bUseCustomRect) {
-		m_Image = new TextureClass(Device, ImageSrc, CustomRect);
-	}
-	else {
-		m_Image = new TextureClass(Device, ImageSrc);
-	}
-	if (!m_Image) {
-		return false;
-	}
-
-	return true;
+ActorClass::ActorClass() {
 }
 
-void Actor::Render(LPD3DXSPRITE Sprite) {
-	Sprite->Draw(m_Image->m_Texture, &m_Image->m_ImageRect, &m_Image->m_Center, &m_Image->m_Position, m_Image->m_Color);
-}
-
-void Actor::Destroy() {
-	if (m_Image) {
-		delete m_Image;
-		m_Image = nullptr;
-	}
-}
-
-bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
-	Enemy = new EnemyClass(m_Actors);
-	Player = new PlayerClass(m_Actors);
-
-	m_LoadingThread = std::thread([&Device, this]() {
-		for (Actor* AActor : m_Actors) {
-			try {
-				if (!AActor->Init(Device)) {
-					throw "Init Actor Failure!";
-				}
-			}
-			catch (const char* Exception){
-			}
-		}	
-	});
-	m_LoadingThread.join();
-	return true;
-}
-
-void ActorClass::Frame() {
-	for (Actor* AActor : m_Actors) {
-		if (AActor) {
-			AActor->Update();
-		}
-	}
-}
-
-void ActorClass::Shutdown() {
+ActorClass::~ActorClass() {
 	for (Actor* AActor : m_Actors) {
 		if (AActor) {
 			AActor->Destroy();
@@ -64,4 +14,23 @@ void ActorClass::Shutdown() {
 		}
 	}
 	m_Actors.clear();
+}
+
+bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
+	new PlayerClass(m_Actors);
+
+	for (Actor* AActor : m_Actors) {
+		if (AActor) {
+			AActor->Init(Device);
+		}
+	}
+	return true;
+}
+
+void ActorClass::Frame(float DeltaTime) {
+	for (Actor* AActor : m_Actors) {
+		if (AActor) {
+			AActor->Update(DeltaTime);
+		}
+	}
 }

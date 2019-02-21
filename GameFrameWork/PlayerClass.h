@@ -1,20 +1,15 @@
 #pragma once
-#include "ActorClass.h"
+#include "Actor.h"
 
 class PlayerClass : public Actor {
 private:
 
 
 public:
-	PlayerClass(std::vector<Actor*>& Actors) : Actor(Actors) {};
-	virtual ~PlayerClass() override;
+	PlayerClass(std::vector<Actor*>&);
 
-	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCWSTR ImageSrc, bool bUseCustomRect, RECT CustomRect) override;
-	virtual void Update() override;
-	virtual void Render(LPD3DXSPRITE) override;
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) override;
+	virtual void Update(float DeltaTime) override;
 	virtual void Destroy() override;
-
-private:
-	void MoveRight(float Value);
-	void PopupMessageBox();
 };
+

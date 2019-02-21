@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass">
+      <UniqueIdentifier>{beb4f504-51fe-4b92-b86d-2b30c7c26e3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\D3DXClass">
+      <UniqueIdentifier>{002a2229-39aa-4c49-b280-81ce10c990e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GraphicClass">
+      <UniqueIdentifier>{172851a6-278b-4e43-be72-dd14e0390b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Queue">
+      <UniqueIdentifier>{f06eb089-20a0-41cb-9bc1-828c5e05fc83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\MessageQueueClass">
+      <UniqueIdentifier>{e7673321-30da-4f33-9ef7-72651f957a46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\TimerClass">
+      <UniqueIdentifier>{e324fcef-d4bb-4ef0-9f68-caf1a41395c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass">
+      <UniqueIdentifier>{431c320a-3ef5-4c13-868e-1c84e36eb141}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\InputClass">
+      <UniqueIdentifier>{b519e71c-8b12-41ad-8612-e45dd6f8ecdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass\Actor">
+      <UniqueIdentifier>{c9de990c-b08f-47fa-9ee6-cf633b7c2be8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass\Actor\PlayerClass">
+      <UniqueIdentifier>{6a01bb0b-3538-4899-b689-3366beffa514}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemClass.cpp">
+      <Filter>소스 파일\SystemClass</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DXClass.cpp">
+      <Filter>소스 파일\SystemClass\D3DXClass</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicClass.cpp">
+      <Filter>소스 파일\GraphicClass</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageQueueClass.cpp">
+      <Filter>소스 파일\MessageQueueClass</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerClass.cpp">
+      <Filter>소스 파일\SystemClass\TimerClass</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorClass.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerClass.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\Actor\PlayerClass</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D3DXHeader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemClass.h">
+      <Filter>소스 파일\SystemClass</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DXClass.h">
+      <Filter>소스 파일\SystemClass\D3DXClass</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicClass.h">
+      <Filter>소스 파일\GraphicClass</Filter>
+    </ClInclude>
+    <ClInclude Include="Queue.h">
+      <Filter>헤더 파일\Queue</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageQueueClass.h">
+      <Filter>소스 파일\MessageQueueClass</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerClass.h">
+      <Filter>소스 파일\SystemClass\TimerClass</Filter>
+    </ClInclude>
+    <ClInclude Include="ActorClass.h">
+      <Filter>소스 파일\SystemClass\ActorClass</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor.h">
+      <Filter>소스 파일\SystemClass\ActorClass\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerClass.h">
+      <Filter>소스 파일\SystemClass\ActorClass\Actor\PlayerClass</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

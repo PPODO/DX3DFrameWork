@@ -1,39 +1,21 @@
 #include "SystemClass.h"
+#include "MessageQueueClass.h"
 #include "GraphicClass.h"
-#include "ActorClass.h"
-#include "InputClass.h"
 #include "D3DXClass.h"
+#include "ActorClass.h"
+#include <iostream>
 
 SystemClass* SystemClass::m_Application = nullptr;
+
+SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr) {
+}
 
 SystemClass::~SystemClass() {
 }
 
-bool SystemClass::Init() {
-	int Width, Height;
-	if (!InitWindow(Width, Height)) {
-		return false;
-	}
-
-	m_Graphic = new GraphicClass;
-	if (!m_Graphic || !m_Graphic->Init(Width, Height, m_hWnd)) {
-		return false;
-	}
-	m_Input = new InputClass;
-	if (!m_Input) {
-		return false;
-	}
-	m_Actor = new ActorClass;
-	if (!m_Actor || !m_Actor->Init(m_Graphic->GetD3DClass()->GetDevice())) {
-		return false;
-	}
-	m_Graphic->SetActorClass(m_Actor);
-	return true;
-}
-
-bool SystemClass::InitWindow(int& ScreenWidth, int& ScreenHeight) {
+bool SystemClass::InitWindow(int& Width, int& Height) {
 	m_hInstance = GetModuleHandle(nullptr);
-	m_ApplicationName = L"GameFrameWork";
+	m_ApplicationName = L"D3DXFameWork";
 
 	WNDCLASSEX WndClass;
 	WndClass.cbSize = sizeof(WNDCLASSEX);
@@ -50,26 +32,54 @@ bool SystemClass::InitWindow(int& ScreenWidth, int& ScreenHeight) {
 	WndClass.style = CS_VREDRAW | CS_HREDRAW;
 	RegisterClassEx(&WndClass);
 
-	ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-	ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+	Width = GetSystemMetrics(SM_CXSCREEN);
+	Height = GetSystemMetrics(SM_CYSCREEN);
 
-	if (bFullScreen) {
+	if (0) {
 		DEVMODE DevMode;
-		memset(&DevMode, 0, sizeof(DEVMODE));
-		DevMode.dmSize = sizeof(DEVMODE);
-		DevMode.dmPelsHeight = ScreenHeight;
-		DevMode.dmPelsWidth = ScreenWidth;
+		ZeroMemory(&DevMode, sizeof(DEVMODE));
+		DevMode.dmSize = sizeof(DevMode);
+		DevMode.dmPelsWidth = Width;
+		DevMode.dmPelsHeight = Height;
 		DevMode.dmBitsPerPel = 32;
 		DevMode.dmFields = DM_BITSPERPEL | DM_PELSHEIGHT | DM_PELSWIDTH;
 		ChangeDisplaySettings(&DevMode, CDS_FULLSCREEN);
 	}
 	else {
-		ScreenWidth = 800;
-		ScreenHeight = 600;
+		Width = 800;
+		Height = 600;
 	}
 
-	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, ScreenWidth, ScreenHeight, nullptr, (HMENU)nullptr, m_hInstance, nullptr);
+	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, nullptr, (HMENU)nullptr, m_hInstance, nullptr);
 	ShowWindow(m_hWnd, SW_SHOW);
+	return true;
+}
+
+bool SystemClass::Init() {
+	int Width, Height;
+	if (!InitWindow(Width, Height)) {
+		return false;
+	}
+
+	m_D3DX = new D3DXClass;
+	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
+		return false;
+	}
+	m_ActorManager = new ActorClass;
+	if (!m_ActorManager || !m_ActorManager->Init(m_D3DX->GetDevice())) {
+		return false;
+	}
+	
+	if (!GraphicClass::GetInst()) {
+		return false;
+	}
+	return true;
+}
+
+bool SystemClass::Frame(float DeltaTime) {
+	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite(), m_ActorManager->GetActors()));
+
+	m_ActorManager->Frame(DeltaTime);
 	return true;
 }
 
@@ -83,65 +93,44 @@ void SystemClass::Run() {
 			DispatchMessage(&Message);
 		}
 		else {
-			if (!Frame()) {
-				break;
+			if (Timer.UpdateFPS(DeltaTime)) {
+				if (!Frame(DeltaTime)) {
+					return;
+				}
 			}
 		}
 	}
 }
 
-bool SystemClass::Frame() {
-	m_Input->Frame();
-	m_Actor->Frame();
-
-	if (!m_Graphic->Render()) {
-		return false;
-	}
-	return true;
-}
-
 void SystemClass::ShutdownWindow() {
-	if (bFullScreen) {
+	if (0) {
 		ChangeDisplaySettings(nullptr, 0);
 	}
 	DestroyWindow(m_hWnd);
 	m_hWnd = nullptr;
 
 	UnregisterClass(m_ApplicationName, m_hInstance);
-	m_hInstance = nullptr;
-
-	if (m_Application) {
-		delete m_Application;
-		m_Application = nullptr;
-	}
+	m_Application = nullptr;
 }
 
 void SystemClass::Shutdown() {
-	if (m_Input) {
-		delete m_Input;
-		m_Input = nullptr;
+	if (m_D3DX) {
+		delete m_D3DX;
+		m_D3DX = nullptr;
 	}
-	if (m_Actor) {
-		m_Actor->Shutdown();
-		delete m_Actor;
-		m_Actor = nullptr;
+	if (m_ActorManager) {
+		delete m_ActorManager;
+		m_ActorManager = nullptr;
 	}
-	if (m_Graphic) {
-		m_Graphic->Shutdown();
-		delete m_Graphic;
-		m_Graphic = nullptr;
-	}
+	MessageQueueClass::GetInst()->PushMessage(MS_DESTROY, []() {});
+
 	ShutdownWindow();
+	DestroySingleton();
 }
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
-	case WM_KEYDOWN:
-		m_Input->KeyIsDown(wParam);
-		return 0;
-	case WM_KEYUP:
-		m_Input->KeyIsUp(wParam);
-		return 0;
+
 	}
 	return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
@@ -155,5 +144,5 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		return 0;
 	}
-	return SystemClass::GetInst() != nullptr ? SystemClass::GetInst()->MessageHandler(hWnd, iMessage, wParam, lParam) : -1;
+	return SystemClass::GetInst()->MessageHandler(hWnd, iMessage, wParam, lParam);
 }

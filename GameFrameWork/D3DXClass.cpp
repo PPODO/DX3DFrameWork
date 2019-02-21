@@ -1,14 +1,14 @@
 #include "D3DXClass.h"
-#include "GraphicClass.h"
+#include <DxErr.h>
+#include <iostream>
+
+D3DXClass::D3DXClass() : m_Device(nullptr), m_Direct9(nullptr) {
+}
 
 D3DXClass::~D3DXClass() {
-	if (m_DirectSprite) {
-		m_DirectSprite->Release();
-		m_DirectSprite = nullptr;
-	}
-	if (m_DirectDevice) {
-		m_DirectDevice->Release();
-		m_DirectDevice = nullptr;
+	if (m_Device) {
+		m_Device->Release();
+		m_Device = nullptr;
 	}
 	if (m_Direct9) {
 		m_Direct9->Release();
@@ -22,7 +22,7 @@ bool D3DXClass::Init(int Width, int Height, HWND hWnd) {
 	}
 	D3DPRESENT_PARAMETERS Params;
 	memset(&Params, 0, sizeof(D3DPRESENT_PARAMETERS));
-	Params.Windowed = !bFullScreen;
+	Params.Windowed = 1;
 	Params.BackBufferCount = 1;
 	Params.BackBufferWidth = Width;
 	Params.BackBufferHeight = Height;
@@ -30,7 +30,7 @@ bool D3DXClass::Init(int Width, int Height, HWND hWnd) {
 	Params.EnableAutoDepthStencil = true;
 	Params.AutoDepthStencilFormat = D3DFMT_D16;
 	Params.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	if (bFullScreen) {
+	if (0) {
 		Params.BackBufferFormat = D3DFMT_X8R8G8B8;
 		Params.hDeviceWindow = hWnd;
 	}
@@ -41,10 +41,10 @@ bool D3DXClass::Init(int Width, int Height, HWND hWnd) {
 	if (Caps.DevCaps & D3DDEVCAPS_HWRASTERIZATION) {
 		nHardVertexProcessing = D3DCREATE_HARDWARE_VERTEXPROCESSING;
 	}
-	if (FAILED(m_Direct9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, nHardVertexProcessing, &Params, &m_DirectDevice))) {
+	if (FAILED(m_Direct9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, nHardVertexProcessing | D3DCREATE_MULTITHREADED, &Params, &m_Device))) {
 		return false;
 	}
-	if (FAILED(D3DXCreateSprite(m_DirectDevice, &m_DirectSprite))) {
+	if (FAILED(D3DXCreateSprite(m_Device, &m_Sprite))) {
 		return false;
 	}
 	return true;
