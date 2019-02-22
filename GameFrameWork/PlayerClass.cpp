@@ -3,9 +3,6 @@
 #include "InputClass.h"
 #include "TextureClass.h"
 
-PlayerClass::PlayerClass(std::vector<Actor*>& Vector) : Actor(Vector) {
-}
-
 bool PlayerClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
 	Actor::Init(Device, L"Player.png", CustomRect);
 
