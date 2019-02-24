@@ -11,7 +11,7 @@
 #include <future>
 #include <Windows.h>
 
-enum MessageState { MS_RENDER, MS_DESTROY };
+enum MessageState { MS_INIT, MS_RENDER, MS_DESTROY };
 
 static const int MaxQueueSize = 50;
 
@@ -47,9 +47,9 @@ inline void MessageQueueClass::PushMessage(MessageState Message, F&& Function, A
 			std::unique_lock<std::mutex> Lock(m_Lock);
 			m_MessageQueue.push(std::make_tuple(Message, std::bind(std::forward<F>(Function), std::forward<Argc>(_Argc)...)));
 		}
-		m_Condition.notify_all();
+		m_Condition.notify_one();
 	}
 	catch (std::exception Exception) {
-		//MessageBox(SystemClass::GetInst()->GetWindowHandle(), Exception.what(), L"Error!!", MB_OK);
+		//MessageBox(SystemClass::GetInst()->GetWindowHandle(), L"EX", L"Error!!", MB_OK);
 	}
 }

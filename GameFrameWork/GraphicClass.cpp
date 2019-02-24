@@ -18,26 +18,36 @@ GraphicClass::~GraphicClass() {
 	m_RenderThread.join();
 }
 
-void GraphicClass::Render(LPDIRECT3DDEVICE9 Device, LPD3DXSPRITE Sprite, std::vector<Actor*>* Actors) {
-	Device->Clear(0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.f, 0);
-	if(SUCCEEDED(Device->BeginScene())) {
-		Sprite->Begin(D3DXSPRITE_ALPHABLEND);
-		if (Actors) {
-			for (Actor* AActor : *Actors) {
-				if (AActor) {
-					AActor->Render(Sprite);
-				}
-			}
-			SystemClass::GetInst()->WaitForRender = false;
-		}
-		Sprite->End();
+void GraphicClass::Init(LPDIRECT3DDEVICE9 Device, LPD3DXSPRITE Sprite) {
+	if (Device) {
+		m_Device = Device;
 	}
-	Device->EndScene();
-	Device->Present(nullptr, nullptr, nullptr, nullptr);
+	if (Sprite) {
+		m_Sprite = Sprite;
+	}
 }
 
-void GraphicClass::Excute(std::tuple<MessageState, std::function<void()>> Task) {
+void GraphicClass::Render(Actor* AActor) {
+	if (m_Device && m_Sprite) {
+		m_Device->Clear(0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.f, 0);
+		if (SUCCEEDED(m_Device->BeginScene())) {
+			m_Sprite->Begin(D3DXSPRITE_ALPHABLEND);
+			if (AActor) {
+				AActor->Render(m_Sprite);
+			}
+			m_Sprite->End();
+		}
+		m_Device->EndScene();
+		m_Device->Present(nullptr, nullptr, nullptr, nullptr);
+	}
+	SystemClass::GetInst()->SetWaitForRender(false);
+}
+
+void GraphicClass::Excute(std::tuple<MessageState, std::function<void()>>& Task) {
 	switch (std::get<0>(Task)) {
+	case MS_INIT:
+		std::get<1>(Task)();
+		break;
 	case MS_RENDER:
 		std::get<1>(Task)();
 		break;
@@ -48,5 +58,7 @@ void GraphicClass::Excute(std::tuple<MessageState, std::function<void()>> Task) 
 }
 
 void GraphicClass::Shutdown() {
+	m_Device = nullptr;
+	m_Sprite = nullptr;
 	DestroySingleton();
 }

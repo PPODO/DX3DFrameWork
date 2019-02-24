@@ -22,9 +22,6 @@
     <Filter Include="소스 파일\GraphicClass">
       <UniqueIdentifier>{172851a6-278b-4e43-be72-dd14e0390b96}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\Queue">
-      <UniqueIdentifier>{f06eb089-20a0-41cb-9bc1-828c5e05fc83}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\MessageQueueClass">
       <UniqueIdentifier>{e7673321-30da-4f33-9ef7-72651f957a46}</UniqueIdentifier>
     </Filter>
@@ -42,6 +39,21 @@
     </Filter>
     <Filter Include="소스 파일\SystemClass\ActorClass\Actor\PlayerClass">
       <UniqueIdentifier>{6a01bb0b-3538-4899-b689-3366beffa514}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass\StageManager">
+      <UniqueIdentifier>{d7c245af-8486-410c-8f23-9830a0506d06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ObjectPoolClass">
+      <UniqueIdentifier>{3f64ffeb-0e09-4e33-a25f-8d9c715c6465}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass\StageManager\CustomStage">
+      <UniqueIdentifier>{954005a1-dc32-4a28-847d-040f1bbeb4b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass\Actor\Background">
+      <UniqueIdentifier>{04b2ed04-bbba-45ea-938e-ca6b1bbe9077}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SystemClass\ActorClass\StageManager\Button">
+      <UniqueIdentifier>{278e6ba7-cc52-44a5-add6-7c603aa5931d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +87,24 @@
     <ClCompile Include="InputClass.cpp">
       <Filter>소스 파일\SystemClass\InputClass</Filter>
     </ClCompile>
+    <ClCompile Include="StageClass.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectPoolClass.cpp">
+      <Filter>소스 파일\SystemClass\ObjectPoolClass</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuStage.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager\CustomStage</Filter>
+    </ClCompile>
+    <ClCompile Include="BackGroundUIClass.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\Actor\Background</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonClass.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager\Button</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameStage.cpp">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager\CustomStage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3DXHeader.h">
@@ -91,9 +121,6 @@
     </ClInclude>
     <ClInclude Include="GraphicClass.h">
       <Filter>소스 파일\GraphicClass</Filter>
-    </ClInclude>
-    <ClInclude Include="Queue.h">
-      <Filter>헤더 파일\Queue</Filter>
     </ClInclude>
     <ClInclude Include="MessageQueueClass.h">
       <Filter>소스 파일\MessageQueueClass</Filter>
@@ -115,6 +142,24 @@
     </ClInclude>
     <ClInclude Include="InputClass.h">
       <Filter>소스 파일\SystemClass\InputClass</Filter>
+    </ClInclude>
+    <ClInclude Include="StageClass.h">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectPoolClass.h">
+      <Filter>소스 파일\SystemClass\ObjectPoolClass</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuStage.h">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager\CustomStage</Filter>
+    </ClInclude>
+    <ClInclude Include="BackGroundUIClass.h">
+      <Filter>소스 파일\SystemClass\ActorClass\Actor\Background</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonClass.h">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager\Button</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameStage.h">
+      <Filter>소스 파일\SystemClass\ActorClass\StageManager\CustomStage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

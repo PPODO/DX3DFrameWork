@@ -1,8 +1,7 @@
 #include "Actor.h"
 #include "TextureClass.h"
 
-Actor::Actor(std::vector<Actor*>& Vector) {
-	Vector.push_back(this);
+Actor::Actor() {
 }
 
 bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {

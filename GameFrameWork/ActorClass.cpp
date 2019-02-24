@@ -1,25 +1,34 @@
 #include "ActorClass.h"
 #include "Actor.h"
 #include "PlayerClass.h"
+#include "StageClass.h"
+#include "MenuStage.h"
+#include "InGameStage.h"
 
-ActorClass::ActorClass() {
+ActorClass::ActorClass() : m_CurrentStage(0) {
 }
 
 ActorClass::~ActorClass() {
-	for (Actor* AActor : m_Actors) {
+	for (Actor* AActor : m_Stages) {
 		if (AActor) {
 			AActor->Destroy();
-			delete AActor;
-			AActor = nullptr;
 		}
 	}
-	m_Actors.clear();
+	m_Stages.clear();
+
+	if (m_PoolManager) {
+		delete m_PoolManager;
+		m_PoolManager = nullptr;
+	}
 }
 
 bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
-	new PlayerClass(m_Actors);
+	m_PoolManager = new ObjectPoolClass;
 
-	for (Actor* AActor : m_Actors) {
+	new MenuStage(m_Stages);
+	new InGameStage(m_Stages);
+
+	for (Actor* AActor : m_Stages) {
 		if (AActor) {
 			AActor->Init(Device);
 		}
@@ -28,9 +37,7 @@ bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 }
 
 void ActorClass::Frame(float DeltaTime) {
-	for (Actor* AActor : m_Actors) {
-		if (AActor) {
-			AActor->Update(DeltaTime);
-		}
+	if (m_Stages[m_CurrentStage]) {
+		m_Stages[m_CurrentStage]->Update(DeltaTime);
 	}
 }

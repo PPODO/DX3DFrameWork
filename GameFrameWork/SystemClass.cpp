@@ -8,10 +8,13 @@
 
 SystemClass* SystemClass::m_Application = nullptr;
 
-SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr) {
+SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true) {
+	MessageQueueClass::GetInst();
+	GraphicClass::GetInst();
 }
 
 SystemClass::~SystemClass() {
+	MessageQueueClass::DestroySingleton();
 }
 
 bool SystemClass::InitWindow(int& Width, int& Height) {
@@ -70,12 +73,11 @@ bool SystemClass::Init() {
 	if (!m_Input) {
 		return false;
 	}
+	MessageQueueClass::GetInst()->PushMessage(MS_INIT, std::bind(&GraphicClass::Init, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite()));
+//	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_D3DX->GetDevice() ));
+
 	m_ActorManager = new ActorClass;
 	if (!m_ActorManager || !m_ActorManager->Init(m_D3DX->GetDevice())) {
-		return false;
-	}
-	
-	if (!GraphicClass::GetInst()) {
 		return false;
 	}
 	return true;
@@ -83,7 +85,7 @@ bool SystemClass::Init() {
 
 bool SystemClass::Frame(float DeltaTime) {
 	WaitForRender = true;
-	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite(), m_ActorManager->GetActors()));
+	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_ActorManager->GetCurrentActor()));
 
 	m_ActorManager->Frame(DeltaTime);
 	m_Input->Frame();
@@ -143,6 +145,16 @@ void SystemClass::Shutdown() {
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
+		// 해상도 기준이므로 수정ㅂㄹ
+	case WM_LBUTTONDOWN:
+		m_Input->MouseIsDown(m_ActorManager->GetCurrentStage(), LOWORD(lParam), HIWORD(lParam));
+		return 0;
+	case WM_LBUTTONUP:
+		m_Input->MouseIsUp(m_ActorManager->GetCurrentStage(), LOWORD(lParam), HIWORD(lParam));
+		return 0;
+	case WM_MOUSEMOVE:
+		m_Input->SetMousePosition(LOWORD(lParam), HIWORD(lParam));
+		return 0;
 	case WM_KEYDOWN:
 		m_Input->KeyIsDown(wParam);
 		return 0;

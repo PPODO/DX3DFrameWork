@@ -15,6 +15,7 @@ private:
 
 	TimerClass Timer;
 	float DeltaTime;
+	bool WaitForRender;
 
 private:
 	bool InitWindow(int&, int&);
@@ -30,11 +31,11 @@ public:
 	void Shutdown();
 
 	LRESULT CALLBACK MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
-
-	bool WaitForRender = true;
 public:
-	HWND GetWindowHandle() const { return m_hWnd; }
-	class InputClass* GetInputManager() const { return m_Input; }
+	inline void SetWaitForRender(bool b) { WaitForRender = b; }
+	inline HWND GetWindowHandle() const { return m_hWnd; }
+	inline class InputClass* GetInputManager() const { return m_Input; }
+	inline class ActorClass* GetActorManager() const { return m_ActorManager; }
 };
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);

@@ -143,26 +143,37 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="ActorClass.cpp" />
+    <ClCompile Include="BackGroundUIClass.cpp" />
+    <ClCompile Include="ButtonClass.cpp" />
     <ClCompile Include="D3DXClass.cpp" />
     <ClCompile Include="GraphicClass.cpp" />
+    <ClCompile Include="InGameStage.cpp" />
     <ClCompile Include="InputClass.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuStage.cpp" />
     <ClCompile Include="MessageQueueClass.cpp" />
+    <ClCompile Include="ObjectPoolClass.cpp" />
     <ClCompile Include="PlayerClass.cpp" />
+    <ClCompile Include="StageClass.cpp" />
     <ClCompile Include="SystemClass.cpp" />
     <ClCompile Include="TimerClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorClass.h" />
+    <ClInclude Include="BackGroundUIClass.h" />
+    <ClInclude Include="ButtonClass.h" />
     <ClInclude Include="D3DXClass.h" />
     <ClInclude Include="D3DXHeader.h" />
     <ClInclude Include="GraphicClass.h" />
+    <ClInclude Include="InGameStage.h" />
     <ClInclude Include="InputClass.h" />
+    <ClInclude Include="MenuStage.h" />
     <ClInclude Include="MessageQueueClass.h" />
+    <ClInclude Include="ObjectPoolClass.h" />
     <ClInclude Include="PlayerClass.h" />
-    <ClInclude Include="Queue.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="StageClass.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="TextureClass.h" />
     <ClInclude Include="TimerClass.h" />
