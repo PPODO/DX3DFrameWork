@@ -2,19 +2,24 @@
 
 bool BackGroundUIClass::Init(LPDIRECT3DDEVICE9 Device, bool bIsMoving, LPCTSTR FileSrc, LPCTSTR FileSrc2) {
 	Actor::Init(Device, FileSrc);
-	m_Texture->m_ImageCenter = { 0.f, 0.f, 0.f };
+	m_Texture->SetImageCenter(D3DXVECTOR3(0.f, 0.f, 0.f));
 	if (FileSrc2) {
 		m_SecondImage = new TextureClass(Device, FileSrc2);
-		m_SecondImage->m_ImageCenter = { FLOAT(m_Texture->m_ImageRect.right), 0.f, 0.f };
+		if (!m_SecondImage->m_Texture) {
+			return false;
+		}
+		m_SecondImage->SetImageCenter(D3DXVECTOR3(FLOAT(m_SecondImage->m_ImageRect.right) * -1, 0.f, 0.f));
 	}
-
 	bIsMovingScreen = bIsMoving;
 	return true;
 }
 
 void BackGroundUIClass::Update(float DeltaTime) {
 	if (bIsMovingScreen) {
-		m_Texture->m_ImagePosition.x -= ImageMoveSpeed * DeltaTime;
+		BackgroundImageMoveProcessing(m_Texture);
+		if (m_SecondImage) {
+			BackgroundImageMoveProcessing(m_SecondImage);
+		}
 	}
 }
 

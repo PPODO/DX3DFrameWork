@@ -18,5 +18,8 @@ public:
 
 	bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, std::function<void()> Work);
 	virtual void Render(LPD3DXSPRITE Sprite) override;
+
+public:
+	class TextureClass* GetTexture() const { return m_Texture; }
 };
 

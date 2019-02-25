@@ -6,9 +6,13 @@ GraphicClass* GraphicClass::m_Application = nullptr;
 GraphicClass::GraphicClass() {
 	m_RenderThread = std::thread([&]() {
 		while (true) {
-			if (!MessageQueueClass::GetInst()->IsEmpty()) {
-				std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
-				Excute(Task);
+			try {
+				if (!MessageQueueClass::GetInst()->IsEmpty()) {
+					std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
+					Excute(Task);
+				}
+			}
+			catch (const std::exception&) {
 			}
 		}
 	});
@@ -27,14 +31,12 @@ void GraphicClass::Init(LPDIRECT3DDEVICE9 Device, LPD3DXSPRITE Sprite) {
 	}
 }
 
-void GraphicClass::Render(Actor* AActor) {
+void GraphicClass::Render(const std::function<void()>& Function) {
 	if (m_Device && m_Sprite) {
 		m_Device->Clear(0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.f, 0);
 		if (SUCCEEDED(m_Device->BeginScene())) {
 			m_Sprite->Begin(D3DXSPRITE_ALPHABLEND);
-			if (AActor) {
-				AActor->Render(m_Sprite);
-			}
+			Function();
 			m_Sprite->End();
 		}
 		m_Device->EndScene();

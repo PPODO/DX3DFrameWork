@@ -19,6 +19,7 @@ bool MenuStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect)
 		return false;
 	}
 	m_StartButton->Init(Device, L"StartButton.png", []() { SystemClass::GetInst()->GetActorManager()->SetCurrentStage(SS_PHASE1); });
+	m_StartButton->GetTexture()->SetPosition(m_StartButton->GetTexture()->GetImageCenter());
 
 	return true;
 }

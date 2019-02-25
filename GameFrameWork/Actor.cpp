@@ -5,7 +5,7 @@ Actor::Actor() {
 }
 
 bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
-	m_Texture = (CustomRect.left < 0 ? new TextureClass(Device, FileSrc) : new TextureClass(Device, FileSrc, CustomRect));
+	m_Texture = (CustomRect.left <= -1 ? new TextureClass(Device, FileSrc) : new TextureClass(Device, FileSrc, CustomRect));
 	if (!m_Texture) {
 		return false;
 	}

@@ -23,6 +23,6 @@ public:
 
 public:
 	void Init(LPDIRECT3DDEVICE9, LPD3DXSPRITE);
-	void Render(class Actor* AActor);
+	void Render(const std::function<void()>&);
 
 };

@@ -54,7 +54,9 @@ bool SystemClass::InitWindow(int& Width, int& Height) {
 		Height = 600;
 	}
 
-	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Width, Height, nullptr, (HMENU)nullptr, m_hInstance, nullptr);
+	RECT Size = { 0, 0, Width, Height };
+	AdjustWindowRectEx(&Size, WS_OVERLAPPEDWINDOW, false, WS_EX_APPWINDOW);
+	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Size.right - Size.left, Size.bottom - Size.top, nullptr, (HMENU)nullptr, m_hInstance, nullptr);
 	ShowWindow(m_hWnd, SW_SHOW);
 	return true;
 }
@@ -64,6 +66,7 @@ bool SystemClass::Init() {
 	if (!InitWindow(Width, Height)) {
 		return false;
 	}
+	GetClientRect(m_hWnd, &m_WindowSize);
 
 	m_D3DX = new D3DXClass;
 	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
@@ -74,22 +77,26 @@ bool SystemClass::Init() {
 		return false;
 	}
 	MessageQueueClass::GetInst()->PushMessage(MS_INIT, std::bind(&GraphicClass::Init, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite()));
-//	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_D3DX->GetDevice() ));
+
+	/* Loading Screen */
 
 	m_ActorManager = new ActorClass;
 	if (!m_ActorManager || !m_ActorManager->Init(m_D3DX->GetDevice())) {
 		return false;
 	}
+
+	/* Loading Screen */
 	return true;
 }
 
 bool SystemClass::Frame(float DeltaTime) {
 	WaitForRender = true;
-	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), m_ActorManager->GetCurrentActor()));
+	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
 
 	m_ActorManager->Frame(DeltaTime);
-	m_Input->Frame();
-
+	if (m_ActorManager->GetCurrentStage() > 0) {
+		m_Input->Frame();
+	}
 	while (WaitForRender);
 	return true;
 }

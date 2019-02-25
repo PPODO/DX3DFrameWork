@@ -1,6 +1,6 @@
 #include "InputClass.h"
 
-InputClass::InputClass() : m_MouseX(0), m_MouseY(0) {
+InputClass::InputClass() : m_MouseX(0), m_MouseY(0), m_MouseActionDataSave(nullptr) {
 }
 
 InputClass::~InputClass() {
@@ -30,8 +30,8 @@ void InputClass::KeyIsUp(unsigned short Key) {
 void InputClass::MouseIsDown(unsigned short Key, short X, short Y) {
 	auto Iterator = m_MouseActions.find(Key);
 	if (Iterator != m_MouseActions.cend() && CheckPosInRect(std::get<0>(Iterator->second), X, Y)) {
-		m_MouseActionDataSave = Iterator->second;
-		std::get<1>(m_MouseActionDataSave)();
+		m_MouseActionDataSave = &Iterator->second;
+		std::get<1>(*m_MouseActionDataSave)();
 	}
 }
 
@@ -39,10 +39,13 @@ void InputClass::MouseIsUp(unsigned short Key, short X, short Y) {
 	auto Iterator = m_MouseActions.find(Key);
 	if (Iterator != m_MouseActions.cend()) {
 		if (CheckPosInRect(std::get<0>(Iterator->second), X, Y)) {
-			std::get<2>(m_MouseActionDataSave)();
+			std::get<2>(*m_MouseActionDataSave)();
 		}
-		std::get<1>(m_MouseActionDataSave)();
+		if (m_MouseActionDataSave) {
+			std::get<1>(*m_MouseActionDataSave)();
+		}
 	}
+	m_MouseActionDataSave = nullptr;
 }
 
 void InputClass::BindAxisDelegate(unsigned short Key, Function Delegate) {

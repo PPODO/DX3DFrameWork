@@ -13,7 +13,7 @@ private:
 	std::map<unsigned short, std::tuple<bool, Function>> m_AxisKeys;
 	std::map<unsigned short, std::tuple<InputState, Function>> m_ActionKeys;
 	std::map<unsigned short, std::tuple<RECT, Function, Function>> m_MouseActions;
-	std::tuple<RECT, Function, Function> m_MouseActionDataSave;
+	std::tuple<RECT, Function, Function>* m_MouseActionDataSave;
 
 	short m_MouseX, m_MouseY;
 
