@@ -1,6 +1,7 @@
 #include "ActorClass.h"
 #include "Actor.h"
 #include "PlayerClass.h"
+#include "DefaultEnemy.h"
 #include "StageClass.h"
 #include "MenuStage.h"
 #include "InGameStage.h"
@@ -23,10 +24,12 @@ ActorClass::~ActorClass() {
 }
 
 bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
-	m_PoolManager = new ObjectPoolClass;
+	m_PoolManager = new ObjectPoolClass(Device);
+	if (!m_PoolManager) { return false; }
+	m_PoolManager->CreateObject<DefaultEnemy>("DefaultEnemy", 10);
 
 	new MenuStage(m_Stages);
-	new InGameStage(m_Stages);
+	new InGameStage(m_Stages, m_PoolManager);
 
 	m_Player = new PlayerClass;
 	if (!m_Player) {

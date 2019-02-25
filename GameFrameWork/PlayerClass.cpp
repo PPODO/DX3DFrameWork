@@ -3,6 +3,8 @@
 #include "InputClass.h"
 
 PlayerClass::PlayerClass() {
+	m_TempInputManager = SystemClass::GetInst()->GetInputManager();
+
 	m_XMoveSpeed = 5.f;
 	m_YMoveSpeed = 5.f;
 }
@@ -15,10 +17,10 @@ bool PlayerClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRec
 }
 
 void PlayerClass::SetupPlayerInput() {
-	SystemClass::GetInst()->GetInputManager()->BindAxisDelegate(VK_RIGHT, std::bind(&PlayerClass::MoveRight, this, 1.f));
-	SystemClass::GetInst()->GetInputManager()->BindAxisDelegate(VK_LEFT, std::bind(&PlayerClass::MoveRight, this, -1.f));
-	SystemClass::GetInst()->GetInputManager()->BindAxisDelegate(VK_UP, std::bind(&PlayerClass::MoveForward, this, -1.f));
-	SystemClass::GetInst()->GetInputManager()->BindAxisDelegate(VK_DOWN, std::bind(&PlayerClass::MoveForward, this, 1.f));
+	m_TempInputManager->BindAxisDelegate(VK_RIGHT, std::bind(&PlayerClass::MoveRight, this, 1.f));
+	m_TempInputManager->BindAxisDelegate(VK_LEFT, std::bind(&PlayerClass::MoveRight, this, -1.f));
+	m_TempInputManager->BindAxisDelegate(VK_UP, std::bind(&PlayerClass::MoveForward, this, -1.f));
+	m_TempInputManager->BindAxisDelegate(VK_DOWN, std::bind(&PlayerClass::MoveForward, this, 1.f));
 }
 
 void PlayerClass::Update(float DeltaTime) {

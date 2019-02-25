@@ -25,6 +25,10 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
+
+public:
+	inline RECT GetWindowSize() const { return m_WindowSize; }
+	TextureClass* GetTexture() const { return m_Texture; }
 };
 
 inline bool Pawn::CheckOutOfScreen(ScreenCoord SC, LONG Value) {

@@ -2,10 +2,11 @@
 #include "StageClass.h"
 
 class InGameStage : public StageClass {
-	using StageClass::StageClass;
 private:
+	std::vector<class EnemyClass*> m_Enemy;
 
 public:
+	InGameStage(std::vector<class Actor*>& Actors, class ObjectPoolClass* ObjectPool);
 	virtual ~InGameStage() override;
 
 public:
