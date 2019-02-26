@@ -33,9 +33,15 @@ public:
 		}
 	}
 
-	inline void Render(LPD3DXSPRITE Sprite) {
+	inline void Render(const LPD3DXSPRITE Sprite) {
 		if (Sprite) {
 			Sprite->Draw(m_Texture, &m_ImageRect, &m_ImageCenter, &m_ImagePosition, m_Color);
+		}
+	}
+
+	inline void TEST(float* q) {
+		if (q) {
+			*q = 10.f;
 		}
 	}
 

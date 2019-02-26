@@ -27,16 +27,14 @@ public:
 	~MessageQueueClass();
 	
 	template<typename F, typename ...Argc>
-	void PushMessage(MessageState Message, F&& Function, Argc&&... _Argc);
+	void PushMessage(MessageState Message, F&&, Argc&&...);
 	std::tuple<MessageState, std::function<void()>> PopMessage();
 
 	bool IsEmpty() const { return m_MessageQueue.empty(); }
 };
 
 template<typename F, typename ...Argc>
-inline void MessageQueueClass::PushMessage(MessageState Message, F&& Function, Argc&& ..._Argc) {
-	typedef decltype(std::forward<F>(Function)(std::forward<Argc>(_Argc)...)) ReturnType;
-
+inline void MessageQueueClass::PushMessage(MessageState Message, F&& Function, Argc&&... _Argc) {
 	try {
 		if (m_bIsStop) {
 			throw std::runtime_error("Message Queue Thread is Stop!");

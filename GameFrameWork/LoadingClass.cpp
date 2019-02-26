@@ -16,8 +16,12 @@ LoadingClass::LoadingClass(const size_t MaxImages, LPD3DXSPRITE Sprite) : m_MaxI
 			}
 			// 이유는 알 수 없지만, 람다 함수를 넘겨주는 과정에서 Sprite인자를 그대로 넘겨줄 경우 런타임 에러가 남.
 			// 함수 호출 규약에서 넘겨받은 인자를 어떻게 스택에서 제거할지 뭐시기 라는데 그 과정에서 발생하는 문제라 판단, 넘겨받은 인자를 따로 변수에 저장해 람다 함수로 패스해주는 방식 채택
-			// 결론 : 내 두 시간,,,,
-			MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { Render(m_TempSprite); }));
+			// 결론 : 내 두 시간,,,,7
+			// -> 디버깅 해본 결과 대충 어느 곳이 문제인지 짐작할 수 있었음.
+			// -> LoadingClass의 생성자가 호출된 메인 스레드와 그 생성자에서 만들어진 서브 스레드는 각자 다른 스택 공간을 가지고 있기 때문에, 매개변수의 값과 주소 또한 다름.
+			// 스레드를 생성한 시점부터 생성자의 인수로 넘어온 Sprite는 완전히 다른 변수이고, 그 변수에는 쓰레기 값이 들어가 있었던 것. 또한 디버깅을 해보니 DLL이 다른 걸 확인할 수 있었음.
+			// dll때문에 위의 문제가 생긴 게 아닌가 싶음.
+			MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [&]() { Render(m_TempSprite); }));
 			while (m_bWaitForSignal);
 		}
 	});
