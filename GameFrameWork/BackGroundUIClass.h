@@ -18,7 +18,7 @@ public:
 
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, bool bIsMoving, LPCTSTR FileSrc, LPCTSTR FileSrc2 = nullptr);
 	virtual void Update(float DeltaTime) override;
-	virtual void Render(LPD3DXSPRITE Sprite);
+	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
 
 };

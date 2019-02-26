@@ -8,5 +8,5 @@ TO DO
 5. ~(중요)Threaded Rendering 구현~
 6. ~초당 프레임 제한~
 7. ~Stage Manager로 오브젝트 관리,~ 풀링
-8. 로딩화면 구현
+8. ~로딩화면 구현~
 9. 게임로직

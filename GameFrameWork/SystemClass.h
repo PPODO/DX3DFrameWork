@@ -12,6 +12,7 @@ private:
 
 	class D3DXClass* m_D3DX;
 	class ActorClass* m_ActorManager;
+	class LoadingClass* m_LoadingManager;
 	class InputClass* m_Input;
 
 	TimerClass Timer;

@@ -34,7 +34,9 @@ public:
 	}
 
 	inline void Render(LPD3DXSPRITE Sprite) {
-		Sprite->Draw(m_Texture, &m_ImageRect, &m_ImageCenter, &m_ImagePosition, m_Color);
+		if (Sprite) {
+			Sprite->Draw(m_Texture, &m_ImageRect, &m_ImageCenter, &m_ImagePosition, m_Color);
+		}
 	}
 
 	inline void SetImageCenter(const D3DXVECTOR3& Vector) { m_ImageCenter = Vector; }

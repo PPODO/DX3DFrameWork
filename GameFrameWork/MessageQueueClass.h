@@ -1,6 +1,5 @@
 #pragma once
 #include "Singleton.h"
-#include "Queue.h"
 #include "SystemClass.h"
 #include <queue>
 #include <thread>

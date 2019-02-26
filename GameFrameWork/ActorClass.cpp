@@ -30,13 +30,13 @@ bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 
 	new MenuStage(m_Stages);
 	new InGameStage(m_Stages, m_PoolManager);
-
+	
 	m_Player = new PlayerClass;
 	if (!m_Player) {
 		return false;
 	}
-
 	m_Player->Init(Device);
+
 	for (Actor* AActor : m_Stages) {
 		if (AActor) {
 			AActor->Init(Device);

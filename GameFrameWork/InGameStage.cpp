@@ -8,12 +8,15 @@ InGameStage::InGameStage(std::vector<Actor*>& Actors, ObjectPoolClass* ObjectPoo
 	if (ObjectPool) {
 		ObjectPool->GetPoolObject("DefaultEnemy", m_Enemy, 5);
 	}
+	m_StageTime = std::chrono::duration<float>(10.f);
+	m_bUseTimer = true;
 }
 
 InGameStage::~InGameStage() {
 }
 
 bool InGameStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
+	StageClass::Init(Device);
 	m_BackGround = new BackGroundUIClass;
 	if (!m_BackGround) {
 		return false;
@@ -24,6 +27,7 @@ bool InGameStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRec
 }
 
 void InGameStage::Update(float DeltaTime) {
+	StageClass::Update(DeltaTime);
 	m_BackGround->Update(DeltaTime);
 	for (auto Iterator : m_Enemy) {
 		Iterator->Update(DeltaTime);
