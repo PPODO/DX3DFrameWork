@@ -2,14 +2,20 @@
 #include "Actor.h"
 #include "TextureClass.h"
 #include <tuple>
+#include <chrono>
 
 enum ScreenCoord { XSCREEN, YSCREEN };
 
 class Pawn : public Actor {
+protected:
+	enum { PS_DEFAULT, PS_LASER, PS_HOMING };
 private:
 	RECT m_WindowSize;
 
 protected:
+	std::chrono::duration<float> m_FireDelay;
+	std::chrono::system_clock::time_point m_LastFireTime;
+
 	float m_XMoveSpeed;
 	float m_YMoveSpeed;
 
@@ -18,7 +24,7 @@ protected:
 
 public:
 	Pawn();
-	~Pawn();
+	virtual ~Pawn();
 
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;
 	virtual void SetupPlayerInput();

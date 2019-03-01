@@ -24,22 +24,15 @@ bool MenuStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect)
 	return true;
 }
 
-void MenuStage::Update(float DeltaTime) {
-	m_BackGround->Update(DeltaTime);
-}
-
 void MenuStage::Render(LPD3DXSPRITE Sprite) {
-	m_BackGround->Render(Sprite);
+	StageClass::Render(Sprite);
 	m_StartButton->Render(Sprite);
 }
 
 void MenuStage::Destroy() {
-	if (m_BackGround) {
-		m_BackGround->Destroy();
-		delete m_BackGround;
-		m_BackGround = nullptr;
-	}
+	StageClass::Destroy();
 	if (m_StartButton) {
+		m_StartButton->Destroy();
 		delete m_StartButton;
 		m_StartButton = nullptr;
 	}

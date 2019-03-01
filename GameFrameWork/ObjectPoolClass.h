@@ -19,7 +19,11 @@ public:
 	void CreateObject(std::string ObjectName, size_t ObjectCount);
 
 	template<typename T>
-	void GetPoolObject(std::string ObjectName, std::vector<T*>& Actors, size_t ObjectCount);
+	void GetPoolObject(std::string ObjectName, std::stack<T*>& Actors, size_t ObjectCount);
+
+	template<typename T>
+	void ReleaseAll(std::string ObjectName, std::stack<T*>& Object, size_t ObjectSize);
+
 	void Release(std::string ObjectName, class Actor* Object);
 };
 
@@ -35,22 +39,19 @@ inline void ObjectPoolClass::CreateObject(std::string ObjectName, size_t ObjectC
 }
 
 template<typename T>
-inline void ObjectPoolClass::GetPoolObject(std::string ObjectName, std::vector<T*>& Actors, size_t ObjectCount) {
+inline void ObjectPoolClass::GetPoolObject(std::string ObjectName, std::stack<T*>& Actors, size_t ObjectCount) {
 	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
 	for (size_t i = 0; i < ObjectCount; i++) {
-		Actors.push_back((T*)It->second.top());
+		Actors.push((T*)It->second.top());
 		It->second.pop();
 	}
 }
 
-/*
-Actor* ObjectPoolClass::GetPoolObject(std::string ObjectName) {
-	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
-	if (It != m_Objects.cend()) {
-		Actor* Object = It->second.top();
-		It->second.pop();
-		return (Object ? Object : nullptr);
+template<typename T>
+void ObjectPoolClass::ReleaseAll(std::string ObjectName, std::stack<T*>& Object, size_t ObjectSize) {
+	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<class Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
+	for (size_t i = 0; i < ObjectSize; i++) {
+		It->second.push(Object.top());
+		Object.pop();
 	}
-	return nullptr;
 }
-*/

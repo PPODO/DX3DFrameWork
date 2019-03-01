@@ -14,10 +14,6 @@ bool ButtonClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, std::function<
 	return true;
 }
 
-void ButtonClass::Render(LPD3DXSPRITE Sprite) {
-	m_Texture->Render(Sprite);
-}
-
 void ButtonClass::ChangeButtonState() {
 	m_bChangeButtonState = !m_bChangeButtonState;
 	if (m_bChangeButtonState) {
@@ -26,10 +22,4 @@ void ButtonClass::ChangeButtonState() {
 	else {
 		m_Texture->m_Color = 0xffffffff;
 	}
-}
-
-void ButtonClass::Update(float DeltaTime) {
-}
-
-void ButtonClass::Destroy() {
 }

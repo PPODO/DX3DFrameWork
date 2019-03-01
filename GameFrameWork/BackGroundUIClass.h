@@ -24,10 +24,8 @@ public:
 };
 
 inline void BackGroundUIClass::BackgroundImageMoveProcessing(TextureClass* Image) {
-	if (Image->GetPosition().x >= Image->GetRect().right * -1) {
-		Image->AddXPosition(ImageMoveSpeed * -1);
+	if ((LONG)Image->GetPosition().x <= Image->GetRect().right * -1) {
+		Image->SetPosition(D3DXVECTOR3((FLOAT)Image->GetRect().right, 0.f, 0.f));
 	}
-	else {
-		Image->SetPosition(D3DXVECTOR3(0.f, 0.f, 0.f));
-	}
+	Image->AddXPosition(ImageMoveSpeed * -1);
 }

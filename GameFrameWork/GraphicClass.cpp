@@ -4,22 +4,28 @@
 GraphicClass* GraphicClass::m_Application = nullptr;
 
 GraphicClass::GraphicClass() {
-	m_RenderThread = std::thread([&]() {
-		while (true) {
-			try {
-				if (!MessageQueueClass::GetInst()->IsEmpty()) {
-					std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
-					Excute(Task);
+	for (int i = 0; i < MaxRenderedThread; i++) {
+		m_RenderThread.push_back(std::thread([&]() {
+			while (true) {
+				try {
+					std::unique_lock<std::mutex> Lock(m_Lock);
+					if (!MessageQueueClass::GetInst()->IsEmpty()) {
+						std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
+						Lock.unlock();
+						Excute(Task);
+					}
+				}
+				catch (const std::exception&) {
 				}
 			}
-			catch (const std::exception&) {
-			}
-		}
-	});
+		}));
+	}
 }
 
 GraphicClass::~GraphicClass() {
-	m_RenderThread.join();
+	for (int i = 0; i < MaxRenderedThread; i++) {
+		m_RenderThread[i].join();
+	}
 }
 
 void GraphicClass::Init(LPDIRECT3DDEVICE9 Device, LPD3DXSPRITE Sprite) {

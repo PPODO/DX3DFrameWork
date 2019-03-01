@@ -1,7 +1,7 @@
 #include "Actor.h"
 #include "TextureClass.h"
 
-Actor::Actor() {
+Actor::Actor() : m_bIsActive(true), m_Texture(nullptr) {
 }
 
 bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
@@ -13,6 +13,20 @@ bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
 	return true;
 }
 
+void Actor::Update(float DeltaTime) {
+	if (!m_bIsActive) { return; }
+}
+
 void Actor::Render(LPD3DXSPRITE Sprite) {
-	Sprite->Draw(m_Texture->m_Texture, &m_Texture->m_ImageRect, &m_Texture->m_ImageCenter, &m_Texture->m_ImagePosition, m_Texture->m_Color);
+	if (!m_bIsActive) { return; }
+	if (m_Texture) {
+		m_Texture->Render(Sprite);
+	}
+}
+
+void Actor::Destroy() {
+	if (m_Texture) {
+		delete m_Texture;
+		m_Texture = nullptr;
+	}
 }

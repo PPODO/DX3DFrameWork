@@ -1,19 +1,19 @@
 #pragma once
-#include "Pawn.h"
+#include "EnemyClass.h"
 
-class PlayerClass : public Pawn {
+class RushEnemy : public EnemyClass {
 private:
+	D3DXVECTOR3 m_PlayerPosition;
 
+protected:
+	virtual void EnemyMoveProcessing() override;
 
 public:
-	PlayerClass();
-	virtual ~PlayerClass() override;
+	RushEnemy();
 
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;
-	virtual void SetupPlayerInput();
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
-
 };

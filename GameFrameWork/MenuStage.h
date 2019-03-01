@@ -7,12 +7,10 @@ private:
 	class ButtonClass* m_StartButton;
 
 public:
-	virtual ~MenuStage() override;
+	~MenuStage();
 
-public:
-	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) override;
-	virtual void Update(float DeltaTime) override;
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
-};
 
+};

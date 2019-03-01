@@ -1,18 +1,21 @@
 #include "ActorClass.h"
-#include "Actor.h"
-#include "PlayerClass.h"
-#include "DefaultEnemy.h"
 #include "StageClass.h"
 #include "MenuStage.h"
 #include "InGameStage.h"
+#include "DefaultEnemy.h"
+#include "RushEnemy.h"
+#include "SplitEnemy.h"
+#include "FlightEnemy.h"
 
 ActorClass::ActorClass() : m_CurrentStage(0) {
 }
 
 ActorClass::~ActorClass() {
-	for (Actor* AActor : m_Stages) {
-		if (AActor) {
-			AActor->Destroy();
+	for (auto Stages : m_Stages) {
+		if (Stages) {
+			Stages->Destroy();
+			delete Stages;
+			Stages = nullptr;
 		}
 	}
 	m_Stages.clear();
@@ -27,19 +30,17 @@ bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 	m_PoolManager = new ObjectPoolClass(Device);
 	if (!m_PoolManager) { return false; }
 	m_PoolManager->CreateObject<DefaultEnemy>("DefaultEnemy", 10);
+	m_PoolManager->CreateObject<RushEnemy>("RushEnemy", 10);
+	m_PoolManager->CreateObject<SplitEnemy>("SplitEnemy", 10);
+	m_PoolManager->CreateObject<FlightEnemy>("FlightEnemy", 10);
 
 	new MenuStage(m_Stages);
-	new InGameStage(m_Stages, m_PoolManager);
-	
-	m_Player = new PlayerClass;
-	if (!m_Player) {
-		return false;
-	}
-	m_Player->Init(Device);
+	new InGameStage(m_Stages, m_PoolManager, 5);
+	new InGameStage(m_Stages, m_PoolManager, 10);
 
-	for (Actor* AActor : m_Stages) {
-		if (AActor) {
-			AActor->Init(Device);
+	for (auto Stages : m_Stages) {
+		if (Stages) {
+			Stages->Init(Device);
 		}
 	}
 	return true;
@@ -49,16 +50,17 @@ void ActorClass::Frame(float DeltaTime) {
 	if (m_Stages[m_CurrentStage]) {
 		m_Stages[m_CurrentStage]->Update(DeltaTime);
 	}
-	if (m_CurrentStage > 0) {
-		m_Player->Update(DeltaTime);
-	}
 }
 
 void ActorClass::Render(LPD3DXSPRITE Sprite) {
 	if (m_Stages[m_CurrentStage]) {
 		m_Stages[m_CurrentStage]->Render(Sprite);
 	}
-	if (m_CurrentStage > 0) {
-		m_Player->Render(Sprite);
+}
+
+void ActorClass::SetCurrentStage(unsigned short Value) {
+	if (Value < m_Stages.size()) {
+		m_CurrentStage = Value;
+		m_Stages[m_CurrentStage]->ChangeStageNotification();
 	}
 }

@@ -39,12 +39,6 @@ public:
 		}
 	}
 
-	inline void TEST(float* q) {
-		if (q) {
-			*q = 10.f;
-		}
-	}
-
 	inline void SetImageCenter(const D3DXVECTOR3& Vector) { m_ImageCenter = Vector; }
 	inline void SetPosition(const D3DXVECTOR3& Vector) { m_ImagePosition = Vector; }
 	inline void AddPosition(const D3DXVECTOR3& Vector) { m_ImagePosition += Vector; }

@@ -1,22 +1,43 @@
 #include "StageClass.h"
-#include "Actor.h"
+#include "SystemClass.h"
 #include "BackGroundUIClass.h"
+#include "Actor.h"
+#include "ActorClass.h"
 
-StageClass::StageClass(std::vector<Actor*>& Stages) : m_bUseTimer(false), m_StageTime(0.f) {
+StageClass::StageClass(std::vector<StageClass*>& Stages) : m_bUseTimer(false), m_StageTime(0.f), m_bIsStop(false), m_bNotificationForStop(false) {
 	Stages.push_back(this);
 }
 
 StageClass::~StageClass() {
 }
 
-bool StageClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
-	
-
-	return true;
+void StageClass::Update(float DeltaTime) {
+	if (!m_bIsActive) { return; }
+	if (m_bUseTimer && m_StageTime < std::chrono::system_clock::now() - m_StartTime) {
+		if (m_bIsStop) {
+			ReleaseForChangingStage();
+			SystemClass::GetInst()->GetActorManager()->SetCurrentStage(SystemClass::GetInst()->GetActorManager()->GetCurrentStage() + 1);
+		}
+		m_bNotificationForStop = true;
+	}
+	m_BackGround->Update(DeltaTime);
 }
 
-void StageClass::Update(float DeltaTime) {
-	if (m_bUseTimer && m_StageTime < std::chrono::system_clock::now() - m_StartTime) {
-		
+void StageClass::Render(LPD3DXSPRITE Sprite) {
+	if (!m_bIsActive) { return; }
+	m_BackGround->Render(Sprite);
+}
+
+void StageClass::Destroy() {
+	if (m_BackGround) {
+		m_BackGround->Destroy();
+		delete m_BackGround;
+		m_BackGround = nullptr;
 	}
+}
+
+void StageClass::ChangeStageNotification() {
+}
+
+void StageClass::ReleaseForChangingStage() {
 }

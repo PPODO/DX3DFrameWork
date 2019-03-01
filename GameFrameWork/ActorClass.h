@@ -6,8 +6,8 @@
 class ActorClass {
 private:
 	ObjectPoolClass* m_PoolManager;
-	std::vector<class Actor*> m_Stages;
-	class PlayerClass* m_Player;
+	std::vector<class StageClass*> m_Stages;
+	std::vector<std::string> m_EnemyName;
 
 	unsigned short m_CurrentStage;
 
@@ -21,7 +21,6 @@ public:
 	void Render(LPD3DXSPRITE);
 
 public:
-	inline class Actor* GetCurrentActor() { return m_Stages[m_CurrentStage]; }
 	inline unsigned short GetCurrentStage() const { return m_CurrentStage; }
-	inline void SetCurrentStage(unsigned short Value) { m_CurrentStage = Value; }
+	void SetCurrentStage(unsigned short Value);
 };

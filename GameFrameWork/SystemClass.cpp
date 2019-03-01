@@ -95,12 +95,12 @@ bool SystemClass::Init() {
 
 bool SystemClass::Frame(float DeltaTime) {
 	WaitForRender = true;
-	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
-
 	m_ActorManager->Frame(DeltaTime);
 	if (m_ActorManager->GetCurrentStage() > 0) {
 		m_Input->Frame();
 	}
+
+	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
 	while (WaitForRender);
 	return true;
 }

@@ -1,8 +1,9 @@
 #include "Pawn.h"
 #include "SystemClass.h"
 
-Pawn::Pawn() : m_XMoveSpeed(0.f), m_YMoveSpeed(0.f) {
+Pawn::Pawn() : m_XMoveSpeed(0.f), m_YMoveSpeed(0.f), m_FireDelay(0.f) {
 	m_WindowSize = SystemClass::GetInst()->GetWindowSize();
+	m_LastFireTime = std::chrono::system_clock::now();
 }
 
 Pawn::~Pawn() {

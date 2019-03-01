@@ -8,13 +8,15 @@ bool BackGroundUIClass::Init(LPDIRECT3DDEVICE9 Device, bool bIsMoving, LPCTSTR F
 		if (!m_SecondImage->m_Texture) {
 			return false;
 		}
-		m_SecondImage->SetImageCenter(D3DXVECTOR3(FLOAT(m_SecondImage->m_ImageRect.right) * -1, 0.f, 0.f));
+		m_SecondImage->SetImageCenter(D3DXVECTOR3(0.f, 0.f, 0.f));
+		m_SecondImage->SetPosition(D3DXVECTOR3((FLOAT)m_SecondImage->GetRect().right, 0.f, 0.f));
 	}
 	bIsMovingScreen = bIsMoving;
 	return true;
 }
 
 void BackGroundUIClass::Update(float DeltaTime) {
+	Actor::Update(DeltaTime);
 	if (bIsMovingScreen) {
 		BackgroundImageMoveProcessing(m_Texture);
 		if (m_SecondImage) {
@@ -24,13 +26,14 @@ void BackGroundUIClass::Update(float DeltaTime) {
 }
 
 void BackGroundUIClass::Render(LPD3DXSPRITE Sprite) {
+	Actor::Render(Sprite);
 	if (m_SecondImage) {
 		m_SecondImage->Render(Sprite);
 	}
-	m_Texture->Render(Sprite);
 }
 
 void BackGroundUIClass::Destroy() {
+	Actor::Destroy();
 	if (m_SecondImage) {
 		delete m_SecondImage;
 		m_SecondImage = nullptr;
