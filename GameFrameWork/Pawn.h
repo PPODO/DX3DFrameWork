@@ -1,20 +1,26 @@
 #pragma once
 #include "Actor.h"
 #include "TextureClass.h"
-#include <tuple>
 #include <chrono>
+#include <stack>
 
 enum ScreenCoord { XSCREEN, YSCREEN };
 
 class Pawn : public Actor {
 protected:
-	enum { PS_DEFAULT, PS_LASER, PS_HOMING };
+	enum ProjectileStyle { PS_DEFAULT, PS_LASER, PS_HOMING, PS_COUNT };
 private:
 	RECT m_WindowSize;
 
 protected:
+	std::vector<std::stack<class ProjectileClass*>> m_Projectiles;
+	std::vector<class ProjectileClass*> m_ActivedProjectiles;
 	std::chrono::duration<float> m_FireDelay;
 	std::chrono::system_clock::time_point m_LastFireTime;
+
+	bool m_bIsMaximallyActive;
+	size_t m_CurrentActivatedProjectile, m_MaxActivatedProjectile;
+	ProjectileStyle m_CurrentProjectileStyle;
 
 	float m_XMoveSpeed;
 	float m_YMoveSpeed;

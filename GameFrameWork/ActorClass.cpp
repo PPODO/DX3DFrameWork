@@ -6,6 +6,8 @@
 #include "RushEnemy.h"
 #include "SplitEnemy.h"
 #include "FlightEnemy.h"
+#include "PlayerClass.h"
+#include "DefaultProjectileClass.h"
 
 ActorClass::ActorClass() : m_CurrentStage(0) {
 }
@@ -20,6 +22,12 @@ ActorClass::~ActorClass() {
 	}
 	m_Stages.clear();
 
+	if (m_Player) {
+		m_Player->Destroy();
+		delete m_Player;
+		m_Player = nullptr;
+	}
+
 	if (m_PoolManager) {
 		delete m_PoolManager;
 		m_PoolManager = nullptr;
@@ -29,14 +37,21 @@ ActorClass::~ActorClass() {
 bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 	m_PoolManager = new ObjectPoolClass(Device);
 	if (!m_PoolManager) { return false; }
-	m_PoolManager->CreateObject<DefaultEnemy>("DefaultEnemy", 10);
-	m_PoolManager->CreateObject<RushEnemy>("RushEnemy", 10);
-	m_PoolManager->CreateObject<SplitEnemy>("SplitEnemy", 10);
-	m_PoolManager->CreateObject<FlightEnemy>("FlightEnemy", 10);
+	m_PoolManager->CreateObject<DefaultEnemy>("DefaultEnemy", 10, EN_DEFAULT);
+	m_PoolManager->CreateObject<RushEnemy>("RushEnemy", 10, EN_RUSH);
+	m_PoolManager->CreateObject<SplitEnemy>("SplitEnemy", 10, EN_SPLIT);
+	m_PoolManager->CreateObject<FlightEnemy>("FlightEnemy", 10, EN_FLIGHT);
+//	m_PoolManager->CreateObject<DefaultProjectileClass>("DefaultProjectile", 100);
+
+	m_Player = new PlayerClass(m_PoolManager);
+	if (!m_Player) {
+		return false;
+	}
+	m_Player->Init(Device);
 
 	new MenuStage(m_Stages);
-	new InGameStage(m_Stages, m_PoolManager, 5);
-	new InGameStage(m_Stages, m_PoolManager, 10);
+	new InGameStage(m_Stages, 5);
+	(new InGameStage(m_Stages, 10))->SetObjectPoolAndPlayerClass(m_PoolManager, m_Player);
 
 	for (auto Stages : m_Stages) {
 		if (Stages) {

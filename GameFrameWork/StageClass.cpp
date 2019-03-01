@@ -12,7 +12,7 @@ StageClass::~StageClass() {
 }
 
 void StageClass::Update(float DeltaTime) {
-	if (!m_bIsActive) { return; }
+	Actor::Update(DeltaTime);
 	if (m_bUseTimer && m_StageTime < std::chrono::system_clock::now() - m_StartTime) {
 		if (m_bIsStop) {
 			ReleaseForChangingStage();
@@ -24,7 +24,7 @@ void StageClass::Update(float DeltaTime) {
 }
 
 void StageClass::Render(LPD3DXSPRITE Sprite) {
-	if (!m_bIsActive) { return; }
+	Actor::Render(Sprite);
 	m_BackGround->Render(Sprite);
 }
 

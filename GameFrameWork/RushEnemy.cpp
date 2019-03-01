@@ -1,11 +1,12 @@
 #include "RushEnemy.h"
 
 RushEnemy::RushEnemy() {
+
 	m_Name = "RushEnemy";
 	m_XMoveSpeed = 10.f;
 	m_YMoveSpeed = 2.5f;
-	m_MinSpawnDelay = 1.f;
-	m_MaxSpawnDelay = 2.f;
+	m_MinSpawnDelay = 3.f;
+	m_MaxSpawnDelay = 5.f;
 }
 
 bool RushEnemy::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
@@ -29,6 +30,12 @@ void RushEnemy::Destroy() {
 }
 
 void RushEnemy::EnemyMoveProcessing() {
+	m_Texture->AddPosition(m_MoveDirection * m_XMoveSpeed);
+}
 
-	m_Texture->SetPosition(D3DXVECTOR3(m_Texture->GetPosition().x - m_XMoveSpeed, m_Texture->GetPosition().y, 0.f));
+void RushEnemy::SpawnObject() {
+	EnemyClass::SpawnObject();
+
+	m_MoveDirection = m_Target->GetPosition() - m_Texture->GetPosition();
+	D3DXVec3Normalize(&m_MoveDirection, &m_MoveDirection);
 }

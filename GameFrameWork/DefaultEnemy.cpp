@@ -3,6 +3,7 @@
 
 DefaultEnemy::DefaultEnemy() {
 	m_Name = std::string("DefaultEnemy");
+	m_XMoveSpeed = 5.f;
 	m_MinSpawnDelay = 2.f;
 	m_MaxSpawnDelay = 5.f;
 }

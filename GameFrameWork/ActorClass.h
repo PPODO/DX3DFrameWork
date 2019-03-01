@@ -8,6 +8,7 @@ private:
 	ObjectPoolClass* m_PoolManager;
 	std::vector<class StageClass*> m_Stages;
 	std::vector<std::string> m_EnemyName;
+	class PlayerClass* m_Player;
 
 	unsigned short m_CurrentStage;
 
@@ -22,5 +23,7 @@ public:
 
 public:
 	inline unsigned short GetCurrentStage() const { return m_CurrentStage; }
+	inline short GetKeyByObjectName(const std::string& Name) { return m_PoolManager->GetKeyByObjectName(Name); }
+
 	void SetCurrentStage(unsigned short Value);
 };

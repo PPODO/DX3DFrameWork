@@ -15,6 +15,7 @@ ObjectPoolClass::~ObjectPoolClass() {
 			}
 		}
 	}
+	m_ObjectNames.clear();
 }
 
 void ObjectPoolClass::Release(std::string ObjectName, Actor* Object) {

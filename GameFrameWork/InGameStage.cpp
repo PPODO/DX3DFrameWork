@@ -1,19 +1,21 @@
 #include "InGameStage.h"
-#include "EnemyClass.h"
-#include "BackGroundUIClass.h"
 #include "ObjectPoolClass.h"
+#include "PlayerClass.h"
 
 std::random_device InGameStage::m_RandomDeivce;
 std::mt19937_64 InGameStage::m_RandomAlgorithm;
 std::uniform_int_distribution<int> InGameStage::m_Random;
 
-InGameStage::InGameStage(std::vector<StageClass*>& Vectors, ObjectPoolClass* OP, int NumberOfSpawn) : StageClass(Vectors), m_TempPoolManager(OP), m_LimitiedNumberOfSpawn(NumberOfSpawn) {
-	m_Enemys.resize(1);
-	
-	//
-	m_EnemyStylePercentage[0].first = 0;
-	m_EnemyStylePercentage[0].second = 10;
-	//
+PlayerClass* InGameStage::m_Player = nullptr;
+ObjectPoolClass* InGameStage::m_TempPoolManager = nullptr;
+
+InGameStage::InGameStage(std::vector<StageClass*>& Vectors, int NumberOfSpawn) : StageClass(Vectors), m_LimitiedNumberOfSpawn(NumberOfSpawn) {
+	m_Enemys.resize(3);
+
+	m_EnemyStylePercentage[EN_DEFAULT] = std::make_pair(0, 3);
+	m_EnemyStylePercentage[EN_RUSH] = std::make_pair(3, 6);
+	m_EnemyStylePercentage[EN_SPLIT] = std::make_pair(6, 10);
+//	m_EnemyStylePercentage[EN_FLIGHT] = std::make_pair(0, 10);
 
 	m_bUseTimer = true;
 	m_StageTime = std::chrono::duration<float>(5.f);
@@ -47,21 +49,26 @@ bool InGameStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRec
 void InGameStage::Update(float DeltaTime) {
 	StageClass::Update(DeltaTime);
 
-	for (auto Iterator = m_ActivatedEnemy.begin(); Iterator != m_ActivatedEnemy.end();) {
-		(*Iterator)->Update(DeltaTime);
-		ReleaseActivatedObject(Iterator);
+	if (m_Player) {
+		m_Player->Update(DeltaTime);
 	}
 
-	if (!m_bNotificationForStop && m_ActivatedEnemy.size() < m_LimitiedNumberOfSpawn) {
-		PickEnemyStyleAndSpawn();
+	for (auto Iterator = m_ActivatedEnemy.begin(); Iterator != m_ActivatedEnemy.end();) {
+		if (!(*Iterator)->CheckOutOfScreen(Iterator)) {
+			(*Iterator)->Update(DeltaTime);
+			Iterator++;
+		}
 	}
-	else if (m_bNotificationForStop) {
-		m_ActivatedEnemy.size() < 1 ? m_bIsStop = true : 0;
-	}
+
+	ProcessEnemyActivity();
 }
 
 void InGameStage::Render(LPD3DXSPRITE Sprite) {
 	StageClass::Render(Sprite);
+
+	if (m_Player) {
+		m_Player->Render(Sprite);
+	}
 
 	for (auto It : m_ActivatedEnemy) {
 		It->Render(Sprite);
@@ -72,18 +79,9 @@ void InGameStage::Destroy() {
 	StageClass::Destroy();
 }
 
-void InGameStage::ChangeStageNotification() {
-	if (m_TempPoolManager) {
-		//m_TempPoolManager->GetPoolObject("DefaultEnemy", m_Enemys[EN_DEFAULT], m_LimitiedNumberOfSpawn);
-		m_TempPoolManager->GetPoolObject("SplitEnemy", m_Enemys[EN_DEFAULT], m_LimitiedNumberOfSpawn);
-	}
-	PickEnemyStyleAndSpawn();
-
-	StartTimer();
-}
-
 void InGameStage::PickEnemyStyleAndSpawn() {
 	m_Random = std::uniform_int_distribution<int>(m_ActivatedEnemy.size(), m_LimitiedNumberOfSpawn);
+
 	for (size_t i = m_Random.a(); i < m_LimitiedNumberOfSpawn; i++) {
 		int Percentage = m_Random(m_RandomAlgorithm);
 		ENEMYSTYLE EnemyStyle = CheckPercentage(Percentage);
@@ -91,28 +89,31 @@ void InGameStage::PickEnemyStyleAndSpawn() {
 		EnemyClass* EC = m_Enemys[EnemyStyle].top();
 		m_Enemys[EnemyStyle].pop();
 		if (EC) {
-			EC->SpawnAtLocation();
+			EC->SpawnObject();
 			m_ActivatedEnemy.push_back(EC);
 		}
 	}
 }
 
-void InGameStage::ReleaseActivatedObject(std::vector<EnemyClass*>::iterator& It) {
-	if ((*It) && (*It)->GetOutOfScreen()) {
-		ENEMYSTYLE EnemyStyle = FindEnemyStyleUsingString((*It)->GetName());
-		(*It)->ClearObject();
-		m_Enemys[0].push(*It);
-		It = m_ActivatedEnemy.erase(It);
+void InGameStage::ChangeStageNotification() {
+	if (m_TempPoolManager) {
+		m_TempPoolManager->GetPoolObject("DefaultEnemy", m_Enemys[EN_DEFAULT], m_LimitiedNumberOfSpawn);
+		m_TempPoolManager->GetPoolObject("RushEnemy", m_Enemys[EN_RUSH], m_LimitiedNumberOfSpawn);
+		m_TempPoolManager->GetPoolObject("SplitEnemy", m_Enemys[EN_SPLIT], m_LimitiedNumberOfSpawn);
+
+		m_Enemys[EN_DEFAULT].top()->SetPoolingList(&m_Enemys, &m_ActivatedEnemy);
+		m_Enemys[EN_DEFAULT].top()->SetTargetPosition(m_Player->GetTexture());
 	}
-	else {
-		It++;
-	}
+	PickEnemyStyleAndSpawn();
+
+	StartTimer();
 }
 
 void InGameStage::ReleaseForChangingStage() {
 	if (m_TempPoolManager) {
 		for (auto Iterator : m_Enemys) {
 			if (Iterator.size() > 0) {
+				Iterator.top()->SetPoolingList(nullptr, nullptr);
 				m_TempPoolManager->ReleaseAll(Iterator.top()->GetName(), Iterator, Iterator.size());
 			}
 		}

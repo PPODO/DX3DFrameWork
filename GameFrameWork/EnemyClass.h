@@ -2,6 +2,10 @@
 #include "Pawn.h"
 #include <string>
 #include <random>
+#include <stack>
+#include <vector>
+
+enum ENEMYSTYLE { EN_DEFAULT, EN_RUSH, EN_SPLIT, EN_FLIGHT, EnemyStyleCount };
 
 class EnemyClass : public Pawn {
 private:
@@ -9,44 +13,53 @@ private:
 	static std::mt19937_64 m_RandomAlgorithm;
 	static std::uniform_real_distribution<float> m_Random;
 
+	static std::vector<std::stack<EnemyClass*>>* m_ObjectList;
+	static std::vector<EnemyClass*>* m_ActivatedList;
+
+protected:
+	static TextureClass* m_Target;
+
+private:
 	std::chrono::duration<float> m_SpawnTime;
 	std::chrono::system_clock::time_point m_LastSpawnTime;
 
-	bool m_bOutOfScreen;
-
 protected:
 	std::string m_Name;
+
 	float m_MinSpawnDelay;
 	float m_MaxSpawnDelay;
 
 protected:
 	virtual void EnemyMoveProcessing() = 0;
-	virtual inline bool CheckOutOfScreen();
+	virtual void ClearObject();
 
-	inline bool CheckSpawnTime() const { return m_SpawnTime < std::chrono::system_clock::now() - m_LastSpawnTime; }
+	inline bool CheckSpawnTime() const { if (m_SpawnTime < std::chrono::system_clock::now() - m_LastSpawnTime) { return true; } return false; }
+
+	inline void PoolThisObject(std::vector<EnemyClass*>::iterator&);
 
 public:
 	EnemyClass();
-	~EnemyClass();
+	virtual ~EnemyClass();
 
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
-	virtual void ClearObject();
-
-	void SpawnAtLocation();
+	virtual inline bool CheckOutOfScreen(std::vector<EnemyClass*>::iterator&);
+	virtual void SpawnObject();
 
 public:
-	std::string GetName() const { return m_Name; }
-	void SetOutOfScreen(bool b) { m_bOutOfScreen = b; }
-	bool GetOutOfScreen() const { return m_bOutOfScreen; }
+	void SetPoolingList(std::vector<std::stack<EnemyClass*>>* ObjectList, std::vector<EnemyClass*>* ActivatedList) { ObjectList ? m_ObjectList = ObjectList : m_ObjectList = nullptr; ActivatedList ? m_ActivatedList = ActivatedList : m_ActivatedList = nullptr; };
+	void SetTargetPosition(TextureClass* Target) { m_Target = Target; };
+
+	inline std::string GetName() const { return m_Name; }
 
 };
 
-inline bool EnemyClass::CheckOutOfScreen() {
+inline bool EnemyClass::CheckOutOfScreen(std::vector<EnemyClass*>::iterator& Iterator) {
 	if (LONG(m_Texture->GetPosition().x + m_Texture->GetImageCenter().x) < GetWindowSize().left) {
-		m_bOutOfScreen = true;
+		PoolThisObject(Iterator);
+		return true;
 	}
-	return m_bOutOfScreen;
+	return false;
 }

@@ -3,7 +3,7 @@
 
 class RushEnemy : public EnemyClass {
 private:
-	D3DXVECTOR3 m_PlayerPosition;
+	D3DXVECTOR3 m_MoveDirection;
 
 protected:
 	virtual void EnemyMoveProcessing() override;
@@ -16,4 +16,5 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
+	virtual void SpawnObject() override;
 };
