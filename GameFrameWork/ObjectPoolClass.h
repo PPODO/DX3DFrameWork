@@ -41,7 +41,7 @@ template<typename T>
 inline void ObjectPoolClass::CreateObject(std::string ObjectName, size_t ObjectCount, short Key) {
 	std::stack<class Actor*> Objects;
 	for (size_t i = 0; i < ObjectCount; i++) {
-		class Actor* Object = new T;
+		class Actor* Object = new T();
 		Object->Init(m_Device);
 		Objects.push(Object);
 	}

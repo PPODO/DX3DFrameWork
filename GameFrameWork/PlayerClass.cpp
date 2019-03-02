@@ -3,8 +3,12 @@
 #include "SystemClass.h"
 #include "DefaultProjectileClass.h"
 
-PlayerClass::PlayerClass(ObjectPoolClass* OP) : m_TempInputManager(nullptr), m_TempPoolManager(OP) {
+PlayerClass::PlayerClass(ObjectPoolClass* OP) : m_TempInputManager(nullptr) {
 	m_Projectiles.resize(PS_COUNT);
+
+	SetPoolManager(OP);
+
+	m_FireDelay = std::chrono::duration<float>(0.05f);
 
 	m_TempInputManager = SystemClass::GetInst()->GetInputManager();
 	m_XMoveSpeed = 5.f;
@@ -19,10 +23,10 @@ bool PlayerClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRec
 	Pawn::Init(Device, L"Player.png");
 	m_Texture->SetPosition(D3DXVECTOR3(0.f, FLOAT(GetWindowSize().bottom) / 2, 0.f) - m_Texture->GetImageCenter());
 
-	if (!m_TempPoolManager) {
+	if (!GetPoolManager()) {
 		return false;
 	}
-//	m_TempPoolManager->GetPoolObject("DefaultProjectile", m_Projectiles[PS_DEFAULT], 10);
+	GetPoolManager()->GetPoolObject("DefaultProjectile", m_Projectiles[PS_DEFAULT], 10);
 
 	return true;
 }
@@ -43,7 +47,7 @@ void PlayerClass::Update(float DeltaTime) {
 	Pawn::Update(DeltaTime);
 
 	for (auto Iterator = m_ActivedProjectiles.begin(); Iterator != m_ActivedProjectiles.end();) {
-		if (!(*Iterator)->CheckColliding()) {
+		if (!(*Iterator)->CheckColliding(Iterator, std::bind(&PlayerClass::IsProjectileOutOfScreen, this, *Iterator))) {
 			(*Iterator)->Update(DeltaTime);
 			Iterator++;
 		}
@@ -67,16 +71,12 @@ void PlayerClass::MoveForward(float Value) {
 }
 
 void PlayerClass::FireProjectile(float Value) {
-	auto CurrentTime = std::chrono::system_clock::now();
+	SpawnProjectile(D3DXVECTOR3(1.f, 0.f, 0.f));
+}
 
-	if (m_bIsMaximallyActive && m_FireDelay < CurrentTime - m_LastFireTime) {
-		ProjectileClass* Projectile = m_Projectiles[m_CurrentProjectileStyle].top();
-		if (Projectile) {
-			Projectile->SpawnProjectile(m_Texture->GetPosition(), D3DXVECTOR3(1.f, 0.f, 0.f), &m_Projectiles[m_CurrentProjectileStyle], &m_ActivedProjectiles);
-			m_Projectiles[m_CurrentProjectileStyle].pop();
-			m_ActivedProjectiles.push_back(Projectile);
-		}
-		m_CurrentActivatedProjectile < m_MaxActivatedProjectile ? m_CurrentActivatedProjectile++ : m_CurrentActivatedProjectile = 0, m_bIsMaximallyActive = true;
-		m_LastFireTime = CurrentTime;
+bool PlayerClass::IsProjectileOutOfScreen(class ProjectileClass* ProjectileObject) {
+	if (ProjectileObject->GetTexture()->GetPosition().x - ProjectileObject->GetTexture()->GetImageCenter().x > GetWindowSize().right) {
+		return true;
 	}
+	return false;
 }

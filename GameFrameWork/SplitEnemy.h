@@ -27,12 +27,11 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
-	virtual inline bool CheckOutOfScreen(std::vector<EnemyClass*>::iterator&) override;
+	virtual inline bool CheckOutOfScreen() override;
 };
 
-inline bool SplitEnemy::CheckOutOfScreen(std::vector<EnemyClass*>::iterator& Iterator) {
+inline bool SplitEnemy::CheckOutOfScreen() {
 	if (LONG(m_Texture->GetPosition().x + m_Texture->GetImageCenter().x) < GetWindowSize().left && LONG(m_SplitImage->GetPosition().x + m_SplitImage->GetImageCenter().x) < GetWindowSize().left) {
-		PoolThisObject(Iterator);
 		return true;
 	}
 	return false;

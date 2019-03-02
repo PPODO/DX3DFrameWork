@@ -1,6 +1,8 @@
 #include "DefaultProjectileClass.h"
+#include "TextureClass.h"
 
 DefaultProjectileClass::DefaultProjectileClass() {
+	m_Name = "DefaultProjectile";
 }
 
 bool DefaultProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
@@ -14,11 +16,14 @@ void DefaultProjectileClass::Update(float DeltaTime) {
 }
 
 void DefaultProjectileClass::ProjectileMoveProcessing() {
-	
+	m_Texture->AddPosition(m_MoveDirection * 15.f);
 
 }
 
-bool DefaultProjectileClass::CheckColliding() {
-
-	return true;
+bool DefaultProjectileClass::CheckColliding(std::vector<class ProjectileClass*>::iterator& Iterator, const std::function<bool()>& Function) {
+	if (Function()) {
+		PoolThisObject(Iterator);
+		return true;
+	}
+	return false;
 }

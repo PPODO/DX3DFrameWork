@@ -41,7 +41,7 @@ bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 	m_PoolManager->CreateObject<RushEnemy>("RushEnemy", 10, EN_RUSH);
 	m_PoolManager->CreateObject<SplitEnemy>("SplitEnemy", 10, EN_SPLIT);
 	m_PoolManager->CreateObject<FlightEnemy>("FlightEnemy", 10, EN_FLIGHT);
-//	m_PoolManager->CreateObject<DefaultProjectileClass>("DefaultProjectile", 100);
+	m_PoolManager->CreateObject<DefaultProjectileClass>("DefaultProjectile", 100, PS_DEFAULT);
 
 	m_Player = new PlayerClass(m_PoolManager);
 	if (!m_Player) {

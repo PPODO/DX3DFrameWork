@@ -1,15 +1,17 @@
 #pragma once
 #include "Actor.h"
 #include "TextureClass.h"
+#include "ObjectPoolClass.h"
 #include <chrono>
 #include <stack>
 
 enum ScreenCoord { XSCREEN, YSCREEN };
 
+enum ProjectileStyle;
+
 class Pawn : public Actor {
-protected:
-	enum ProjectileStyle { PS_DEFAULT, PS_LASER, PS_HOMING, PS_COUNT };
 private:
+	static ObjectPoolClass* m_PoolManager;
 	RECT m_WindowSize;
 
 protected:
@@ -18,15 +20,21 @@ protected:
 	std::chrono::duration<float> m_FireDelay;
 	std::chrono::system_clock::time_point m_LastFireTime;
 
-	bool m_bIsMaximallyActive;
-	size_t m_CurrentActivatedProjectile, m_MaxActivatedProjectile;
+	size_t m_MaxActivatedProjectile;
 	ProjectileStyle m_CurrentProjectileStyle;
 
 	float m_XMoveSpeed;
 	float m_YMoveSpeed;
 
 protected:
+	void SpawnProjectile(D3DXVECTOR3&&);
+	
+	inline void ClearProjectilePool();
 	inline bool CheckOutOfScreen(ScreenCoord, LONG);
+	virtual bool IsProjectileOutOfScreen(class ProjectileClass*) = 0;
+
+	void SetPoolManager(ObjectPoolClass* OP) { m_PoolManager = OP; }
+	ObjectPoolClass* GetPoolManager() const { return m_PoolManager; }
 
 public:
 	Pawn();
@@ -37,6 +45,8 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
+
+	bool IsCrashed(const Actor* Object);
 
 public:
 	inline RECT GetWindowSize() const { return m_WindowSize; }

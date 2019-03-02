@@ -4,13 +4,14 @@
 
 class PlayerClass : public Pawn {
 private:
-	class ObjectPoolClass* m_TempPoolManager;
 	class InputClass* m_TempInputManager;
 
 private:
 	void MoveRight(float Value);
 	void MoveForward(float Value);
 	void FireProjectile(float Value);
+
+	virtual bool IsProjectileOutOfScreen(class ProjectileClass*) override;
 
 public:
 	PlayerClass(class ObjectPoolClass*);

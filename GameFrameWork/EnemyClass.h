@@ -23,6 +23,9 @@ private:
 	std::chrono::duration<float> m_SpawnTime;
 	std::chrono::system_clock::time_point m_LastSpawnTime;
 
+private:
+	virtual bool IsProjectileOutOfScreen(class ProjectileClass*) override;
+
 protected:
 	std::string m_Name;
 
@@ -35,8 +38,6 @@ protected:
 
 	inline bool CheckSpawnTime() const { if (m_SpawnTime < std::chrono::system_clock::now() - m_LastSpawnTime) { return true; } return false; }
 
-	inline void PoolThisObject(std::vector<EnemyClass*>::iterator&);
-
 public:
 	EnemyClass();
 	virtual ~EnemyClass();
@@ -45,8 +46,10 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
-	virtual inline bool CheckOutOfScreen(std::vector<EnemyClass*>::iterator&);
+	virtual inline bool CheckOutOfScreen();
 	virtual void SpawnObject();
+
+	void PoolThisObject(std::vector<EnemyClass*>::iterator&);
 
 public:
 	void SetPoolingList(std::vector<std::stack<EnemyClass*>>* ObjectList, std::vector<EnemyClass*>* ActivatedList) { ObjectList ? m_ObjectList = ObjectList : m_ObjectList = nullptr; ActivatedList ? m_ActivatedList = ActivatedList : m_ActivatedList = nullptr; };
@@ -56,9 +59,8 @@ public:
 
 };
 
-inline bool EnemyClass::CheckOutOfScreen(std::vector<EnemyClass*>::iterator& Iterator) {
+inline bool EnemyClass::CheckOutOfScreen() {
 	if (LONG(m_Texture->GetPosition().x + m_Texture->GetImageCenter().x) < GetWindowSize().left) {
-		PoolThisObject(Iterator);
 		return true;
 	}
 	return false;

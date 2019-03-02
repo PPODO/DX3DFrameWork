@@ -18,6 +18,8 @@ public:
 
 public:
 	void SetActivation(bool b) { m_bIsActive = b; }
-	bool GetIsActivation() const { return m_bIsActive; }
+	
+	inline bool GetIsActivation() const { return m_bIsActive; }
+	class TextureClass* GetTexture() const { return m_Texture; }
 
 };

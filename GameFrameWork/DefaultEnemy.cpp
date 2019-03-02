@@ -1,4 +1,5 @@
 #include "DefaultEnemy.h"
+#include "ProjectileClass.h"
 #include <string>
 
 DefaultEnemy::DefaultEnemy() {

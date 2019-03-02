@@ -1,5 +1,4 @@
 #include "ProjectileClass.h"
-#include "TextureClass.h"
 #include <algorithm>
 
 ProjectileClass::ProjectileClass() : m_ActivatedList(nullptr), m_ObjectList(nullptr) {
@@ -31,14 +30,9 @@ void ProjectileClass::Destroy() {
 	Actor::Destroy();
 }
 
-bool ProjectileClass::CheckColliding() {
-	if (0) {
-		auto It = std::find(m_ActivatedList->cbegin(), m_ActivatedList->cend(), this);
-		if (It != m_ActivatedList->cend()) {
-			ClearObject();
-			m_ActivatedList->erase(It);
-			m_ObjectList->push(*It);
-		}
+bool ProjectileClass::CheckColliding(std::vector<class ProjectileClass*>::iterator& Iterator, const std::function<bool()>& Function) {
+	if (Function()) {
+		PoolThisObject(Iterator);
 		return true;
 	}
 	return false;

@@ -18,7 +18,7 @@ InGameStage::InGameStage(std::vector<StageClass*>& Vectors, int NumberOfSpawn) :
 //	m_EnemyStylePercentage[EN_FLIGHT] = std::make_pair(0, 10);
 
 	m_bUseTimer = true;
-	m_StageTime = std::chrono::duration<float>(5.f);
+	m_StageTime = std::chrono::duration<float>(40.f);
 	m_RandomAlgorithm = std::mt19937_64(m_RandomDeivce());
 }
 
@@ -49,15 +49,19 @@ bool InGameStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRec
 void InGameStage::Update(float DeltaTime) {
 	StageClass::Update(DeltaTime);
 
-	if (m_Player) {
-		m_Player->Update(DeltaTime);
-	}
-
 	for (auto Iterator = m_ActivatedEnemy.begin(); Iterator != m_ActivatedEnemy.end();) {
-		if (!(*Iterator)->CheckOutOfScreen(Iterator)) {
+		if (!(*Iterator)->CheckOutOfScreen() && !m_Player->IsCrashed((Actor*)(*Iterator))) {
 			(*Iterator)->Update(DeltaTime);
+			(*Iterator)->IsCrashed(m_Player);
 			Iterator++;
 		}
+		else {
+			(*Iterator)->PoolThisObject(Iterator);
+		}
+	}
+
+	if (m_Player) {
+		m_Player->Update(DeltaTime);
 	}
 
 	ProcessEnemyActivity();
@@ -80,9 +84,9 @@ void InGameStage::Destroy() {
 }
 
 void InGameStage::PickEnemyStyleAndSpawn() {
-	m_Random = std::uniform_int_distribution<int>(m_ActivatedEnemy.size(), m_LimitiedNumberOfSpawn);
+	m_Random = std::uniform_int_distribution<int>(0, 10);
 
-	for (size_t i = m_Random.a(); i < m_LimitiedNumberOfSpawn; i++) {
+	for (size_t i = m_ActivatedEnemy.size(); i < m_LimitiedNumberOfSpawn; i++) {
 		int Percentage = m_Random(m_RandomAlgorithm);
 		ENEMYSTYLE EnemyStyle = CheckPercentage(Percentage);
 
@@ -104,7 +108,6 @@ void InGameStage::ChangeStageNotification() {
 		m_Enemys[EN_DEFAULT].top()->SetPoolingList(&m_Enemys, &m_ActivatedEnemy);
 		m_Enemys[EN_DEFAULT].top()->SetTargetPosition(m_Player->GetTexture());
 	}
-	PickEnemyStyleAndSpawn();
 
 	StartTimer();
 }
