@@ -1,12 +1,16 @@
 #include "ProjectileClass.h"
-#include <algorithm>
+#include "SystemClass.h"
 
-ProjectileClass::ProjectileClass() : m_ActivatedList(nullptr), m_ObjectList(nullptr) {
+ProjectileClass::ProjectileClass() : m_ActivatedList(nullptr), m_ObjectList(nullptr), m_Owner(nullptr) {
+	SystemClass::GetInst()->GetEventClass()->BindTriggerEvent(this, std::bind(&ProjectileClass::OutOfScreen, this));
+	m_Collision = CT_PROJECTILE;
+	m_bIsActive = false;
 }
 
 bool ProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
 	Actor::Init(Device, FileSrc, CustomRect);
-
+	
+	SystemClass::GetInst()->GetEventClass()->BindCollisionEvent(this);
 	return true;
 }
 
@@ -21,24 +25,26 @@ void ProjectileClass::Render(LPD3DXSPRITE Sprite) {
 }
 
 void ProjectileClass::Destroy() {
+	Actor::Destroy();
 	if (m_ActivatedList) {
 		m_ActivatedList = nullptr;
 	}
 	if (m_ObjectList) {
 		m_ObjectList = nullptr;
 	}
-	Actor::Destroy();
-}
-
-bool ProjectileClass::CheckColliding(std::vector<class ProjectileClass*>::iterator& Iterator, const std::function<bool()>& Function) {
-	if (Function()) {
-		PoolThisObject(Iterator);
-		return true;
+	if (m_Owner) {
+		m_Owner = nullptr;
 	}
-	return false;
 }
 
-void ProjectileClass::SpawnProjectile(const D3DXVECTOR3 & Location, const D3DXVECTOR3 & Direction, std::stack<ProjectileClass*>* ObjectList, std::vector<ProjectileClass*>* ActivatedList) {
+void ProjectileClass::TriggerCollisionEventByOtherActor(Actor* OtherActor) {
+	if (OtherActor && OtherActor != this && OtherActor != m_Owner && m_Owner->GetActorCollisionType() != OtherActor->GetActorCollisionType()) {
+		m_bIsActive = false;
+	}
+}
+
+void ProjectileClass::SpawnProjectile(Actor* Owner, const D3DXVECTOR3 & Location, const D3DXVECTOR3 & Direction, std::stack<ProjectileClass*>* ObjectList, std::vector<ProjectileClass*>* ActivatedList) {
+	Owner ? m_Owner = Owner : m_Owner = nullptr;
 	ObjectList ? m_ObjectList = ObjectList : m_ObjectList = nullptr;
 	ActivatedList ? m_ActivatedList = ActivatedList : m_ActivatedList = nullptr;
 
@@ -48,7 +54,12 @@ void ProjectileClass::SpawnProjectile(const D3DXVECTOR3 & Location, const D3DXVE
 }
 
 void ProjectileClass::ClearObject() {
+	m_Owner = nullptr;
 	m_ObjectList = nullptr;
 	m_ActivatedList = nullptr;
+	m_bIsActive = false;
+}
+
+void ProjectileClass::OutOfScreen() {
 	m_bIsActive = false;
 }

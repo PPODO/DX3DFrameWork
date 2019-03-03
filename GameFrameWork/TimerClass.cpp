@@ -1,6 +1,5 @@
 #include "TimerClass.h"
 #include <ctime>
-#include <iostream>
 
 TimerClass::TimerClass() : m_FrameCount(0), m_LastTime(0), m_TimeElapsed(0) {
 }
@@ -15,8 +14,6 @@ bool TimerClass::UpdateFPS(float& DeltaTime) {
 	m_FrameCount++;
 
 	if (m_TimeElapsed >= 1 / 60) {
-//		std::cout << "FPS : " << ((float)m_FrameCount / m_TimeElapsed) << std::endl;
-
 		m_FrameCount = 0;
 		m_TimeElapsed = 0;
 		m_LastTime = CurTime;

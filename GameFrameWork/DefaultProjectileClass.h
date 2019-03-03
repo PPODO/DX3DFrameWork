@@ -7,7 +7,6 @@ private:
 
 protected:
 	virtual void ProjectileMoveProcessing() override;
-	virtual bool CheckColliding(std::vector<class ProjectileClass*>::iterator&, const std::function<bool()>&) override;
 
 public:
 	DefaultProjectileClass();

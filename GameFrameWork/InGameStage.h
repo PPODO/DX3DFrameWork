@@ -2,13 +2,12 @@
 #include "StageClass.h"
 #include "EnemyClass.h"
 #include "BackGroundUIClass.h"
+#include "TextClass.h"
 #include <vector>
 #include <utility>
 #include <string>
 #include <stack>
 #include <random>
-
-enum ENEMYSTYLE;
 
 class InGameStage : public StageClass {
 private:
@@ -20,17 +19,25 @@ private:
 	static class ObjectPoolClass* m_TempPoolManager;
 
 private:
-	std::vector<std::stack<class EnemyClass*>> m_Enemys;
-	std::vector<class EnemyClass*> m_ActivatedEnemy;
+	std::vector<std::stack<EnemyClass*>> m_Enemys;
+	std::vector<EnemyClass*> m_ActivatedEnemy;
 	
 	std::pair<short, short> m_EnemyStylePercentage[EnemyStyleCount];
 	size_t m_LimitiedNumberOfSpawn;
 
-private:
 	void PickEnemyStyleAndSpawn();
 
 	inline void ProcessEnemyActivity();
 	inline ENEMYSTYLE CheckPercentage(int);
+	
+private:
+	std::vector<TextClass*> m_Text;
+	std::chrono::system_clock::time_point m_LastCountTime;
+	unsigned short m_Counting;
+	bool m_GameStart;
+	D3DXVECTOR3 m_PlayerStartPosition;
+
+	void StartCounting();
 
 protected:
 	virtual void ReleaseForChangingStage() override;

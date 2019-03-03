@@ -12,27 +12,28 @@ enum ProjectileStyle;
 class Pawn : public Actor {
 private:
 	static ObjectPoolClass* m_PoolManager;
-	RECT m_WindowSize;
+
+	std::chrono::system_clock::time_point m_LastFireTime;
+	ProjectileStyle m_CurrentProjectileStyle;
 
 protected:
+	float m_Health;
+	bool m_bIsDead;
+
+	bool m_UseAutoSpawn;
+	D3DXVECTOR3 m_ProjectileDirection;
+	size_t m_MaxActivatedProjectile;
+	std::chrono::duration<float> m_FireDelay;
 	std::vector<std::stack<class ProjectileClass*>> m_Projectiles;
 	std::vector<class ProjectileClass*> m_ActivedProjectiles;
-	std::chrono::duration<float> m_FireDelay;
-	std::chrono::system_clock::time_point m_LastFireTime;
-
-	size_t m_MaxActivatedProjectile;
-	ProjectileStyle m_CurrentProjectileStyle;
 
 	float m_XMoveSpeed;
 	float m_YMoveSpeed;
 
 protected:
-	void SpawnProjectile(D3DXVECTOR3&&);
-	
-	inline void ClearProjectilePool();
-	inline bool CheckOutOfScreen(ScreenCoord, LONG);
-	virtual bool IsProjectileOutOfScreen(class ProjectileClass*) = 0;
+	void ClearProjectilePool();
 
+protected:
 	void SetPoolManager(ObjectPoolClass* OP) { m_PoolManager = OP; }
 	ObjectPoolClass* GetPoolManager() const { return m_PoolManager; }
 
@@ -46,22 +47,18 @@ public:
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
 
-	bool IsCrashed(const Actor* Object);
+	void SpawnProjectile(const D3DXVECTOR3&);
+	void ClearActivatedProjectile();
 
 public:
-	inline RECT GetWindowSize() const { return m_WindowSize; }
+	void SetProjectiles(std::stack<class ProjectileClass*>&, size_t MaxListProjectile, float FireDelay, bool UseAuto = false, const D3DXVECTOR3& Direction = D3DXVECTOR3(0.f,0.f,0.f));
+
+	void ApplyDamage(float f) { m_Health -= f; if (m_Health <= 0.f) { m_bIsDead = true; } }
+	void SetIsDead(bool b) { m_bIsDead = b; }
+	void SetHealth(float f) { m_Health = f; }
+	inline bool GetIsDead() const { return m_bIsDead; }
+	inline float GetHealth() const { return m_Health; }
+
+	inline size_t GetCurrentActivatedProjectiles() const { return m_ActivedProjectiles.size(); }
 	TextureClass* GetTexture() const { return m_Texture; }
 };
-
-inline bool Pawn::CheckOutOfScreen(ScreenCoord SC, LONG Value) {
-	if (SC == XSCREEN) {
-		if ((LONG)m_Texture->GetPosition().x + m_Texture->GetImageCenter().x + Value <= m_WindowSize.right && (LONG)m_Texture->GetPosition().x - m_Texture->GetImageCenter().x + Value >= m_WindowSize.left) {
-			return true;
-		}
-		return false;
-	}
-	if ((LONG)m_Texture->GetPosition().y + m_Texture->GetImageCenter().y + Value <= m_WindowSize.bottom && (LONG)m_Texture->GetPosition().y - m_Texture->GetImageCenter().y + Value >= m_WindowSize.top) {
-		return true;
-	}
-	return false;
-}

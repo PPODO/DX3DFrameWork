@@ -1,14 +1,21 @@
 #pragma once
 #include "EnemyClass.h"
 
-class FlightEnemy : public EnemyClass {
+class RushEnemyClass : public EnemyClass {
 private:
+	bool m_bSetDirection;
+	D3DXVECTOR3 MoveDirection;
+
+private:
+	void CalculateDirection();
 
 protected:
 	virtual void EnemyMoveProcessing() override;
+	virtual void ClearObject() override;
 
 public:
-	FlightEnemy();
+	RushEnemyClass();
+	virtual ~RushEnemyClass() override;
 
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;

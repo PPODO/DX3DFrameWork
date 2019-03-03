@@ -19,11 +19,3 @@ void DefaultProjectileClass::ProjectileMoveProcessing() {
 	m_Texture->AddPosition(m_MoveDirection * 15.f);
 
 }
-
-bool DefaultProjectileClass::CheckColliding(std::vector<class ProjectileClass*>::iterator& Iterator, const std::function<bool()>& Function) {
-	if (Function()) {
-		PoolThisObject(Iterator);
-		return true;
-	}
-	return false;
-}

@@ -12,8 +12,6 @@
 
 enum MessageState { MS_INIT, MS_RENDER, MS_DESTROY };
 
-static const int MaxQueueSize = 50;
-
 class MessageQueueClass : public Singleton<MessageQueueClass> {
 private:
 	std::queue<std::tuple<MessageState, std::function<void()>>> m_MessageQueue;
@@ -47,6 +45,5 @@ inline void MessageQueueClass::PushMessage(MessageState Message, F&& Function, A
 		m_Condition.notify_one();
 	}
 	catch (std::exception Exception) {
-		//MessageBox(SystemClass::GetInst()->GetWindowHandle(), L"EX", L"Error!!", MB_OK);
 	}
 }

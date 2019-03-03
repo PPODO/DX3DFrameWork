@@ -1,15 +1,15 @@
 #include "SystemClass.h"
 #include "MessageQueueClass.h"
+#include "EventClass.h"
 #include "GraphicClass.h"
 #include "D3DXClass.h"
 #include "ActorClass.h"
 #include "InputClass.h"
 #include "LoadingClass.h"
-#include <iostream>
 
 SystemClass* SystemClass::m_Application = nullptr;
 
-SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true), m_LoadingManager(nullptr), m_Input(nullptr) {
+SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true), m_LoadingManager(nullptr), m_Input(nullptr), m_Event(nullptr) {
 	MessageQueueClass::GetInst();
 	GraphicClass::GetInst();
 }
@@ -73,14 +73,22 @@ bool SystemClass::Init() {
 	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
 		return false;
 	}
+
+	m_Event = new EventClass;
+	if (!m_Event) {
+		return false;
+	}
+
 	m_LoadingManager = new LoadingClass(2, m_D3DX->GetSprite());
 	if (!m_LoadingManager || !m_LoadingManager->Init(m_D3DX->GetDevice(), false, nullptr)) {
 		return false;
 	}
+	
 	m_Input = new InputClass;
 	if (!m_Input) {
 		return false;
 	}
+
 	MessageQueueClass::GetInst()->PushMessage(MS_INIT, std::bind(&GraphicClass::Init, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite()));
 	m_LoadingManager->BeginDrawImage();
 
@@ -136,6 +144,10 @@ void SystemClass::ShutdownWindow() {
 }
 
 void SystemClass::Shutdown() {
+	if (m_Event) {
+		delete m_Event;
+		m_Event = nullptr;
+	}
 	if (m_ActorManager) {
 		delete m_ActorManager;
 		m_ActorManager = nullptr;

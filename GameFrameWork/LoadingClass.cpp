@@ -2,7 +2,6 @@
 #include "TextureClass.h"
 #include "SystemClass.h"
 #include "D3DXClass.h"
-#include <iostream>
 
 LoadingClass::LoadingClass(const size_t MaxImages, LPD3DXSPRITE Sprite) : m_MaxImages(MaxImages), m_bIsRunning(true), m_bWaitForSignal(true), m_RandomIndex(-1), m_TempSprite(Sprite) {
 	std::random_device RandDevice;

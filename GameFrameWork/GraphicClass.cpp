@@ -11,7 +11,6 @@ GraphicClass::GraphicClass() {
 					std::unique_lock<std::mutex> Lock(m_Lock);
 					if (!MessageQueueClass::GetInst()->IsEmpty()) {
 						std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
-						Lock.unlock();
 						Excute(Task);
 					}
 				}

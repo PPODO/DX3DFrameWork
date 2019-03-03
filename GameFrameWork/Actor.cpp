@@ -1,7 +1,11 @@
 #include "Actor.h"
+#include "SystemClass.h"
 #include "TextureClass.h"
 
+RECT Actor::m_WindowSize;
+
 Actor::Actor() : m_bIsActive(true), m_Texture(nullptr) {
+	m_WindowSize = SystemClass::GetInst()->GetWindowSize();
 }
 
 bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
@@ -29,4 +33,17 @@ void Actor::Destroy() {
 		delete m_Texture;
 		m_Texture = nullptr;
 	}
+}
+
+void Actor::TriggerCollisionEventByOtherActor(Actor *) {
+}
+
+bool Actor::IsItOutOfScreen() {
+	if (m_Texture->GetPosition().x + m_Texture->GetImageCenter().x < GetWindowSize().left || m_Texture->GetPosition().x - m_Texture->GetImageCenter().x > GetWindowSize().right || m_Texture->GetPosition().y + m_Texture->GetImageCenter().y < GetWindowSize().top || m_Texture->GetPosition().y - m_Texture->GetImageCenter().y > GetWindowSize().bottom) {
+		return true;
+	}
+	return false;
+}
+
+void Actor::OutOfScreen() {
 }

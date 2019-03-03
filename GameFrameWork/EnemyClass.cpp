@@ -1,6 +1,7 @@
 #include "EnemyClass.h"
 #include "SystemClass.h"
 #include "ActorClass.h"
+#include "EventClass.h"
 #include "DefaultProjectileClass.h"
 
 std::random_device EnemyClass::m_RandomDevice;
@@ -15,10 +16,14 @@ TextureClass* EnemyClass::m_Target = nullptr;
 EnemyClass::EnemyClass() {
 	m_Projectiles.resize(PS_DEFAULT + 1);
 
+	m_Health = 9.f;
+	m_Collision = CT_ENEMY;
 	m_MaxActivatedProjectile = 5;
 	m_RandomAlgorithm = std::mt19937_64(m_RandomDevice());
 	m_FireDelay = std::chrono::duration<float>(0.25f);
 	m_bIsActive = false;
+	m_UseAutoSpawn = true;
+	SystemClass::GetInst()->GetEventClass()->BindCollisionEvent(this);
 }
 
 EnemyClass::~EnemyClass() {
@@ -38,7 +43,6 @@ bool EnemyClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect
 	if (!GetPoolManager()) {
 		SetPoolManager(SystemClass::GetInst()->GetActorManager()->GetPoolManager());
 	}
-
 	return true;
 }
 
@@ -48,29 +52,48 @@ void EnemyClass::Update(float DeltaTime) {
 	}
 
 	if (m_bIsActive) {
+		if (!m_bIsDead && m_UseAutoSpawn) {
+			SpawnProjectile(m_ProjectileDirection);
+		}
 		for (auto Iterator = m_ActivedProjectiles.begin(); Iterator != m_ActivedProjectiles.end();) {
-			if (!(*Iterator)->CheckColliding(Iterator, std::bind(&EnemyClass::IsProjectileOutOfScreen, this, *Iterator))) {
+			if ((*Iterator) && (*Iterator)->GetIsActivation()) {
 				(*Iterator)->Update(DeltaTime);
 				Iterator++;
 			}
+			else {
+				(*Iterator)->PoolThisObject(Iterator);
+			}
 		}
 		EnemyMoveProcessing();
-		SpawnProjectile(D3DXVECTOR3(-1.f, 0.f, 0.f));
 	}
 }
 
 void EnemyClass::Render(LPD3DXSPRITE Sprite) {
 	Pawn::Render(Sprite);
-
 }
 
 void EnemyClass::Destroy() {
 	Pawn::Destroy();
 }
 
+void EnemyClass::TriggerCollisionEventByOtherActor(Actor* OtherActor) {
+	if (OtherActor && OtherActor != this && m_Collision != OtherActor->GetActorCollisionType()) {
+		if (OtherActor->GetActorCollisionType() == CT_PLAYER) {
+
+		}
+		else if (OtherActor->GetActorCollisionType() == CT_PROJECTILE) {
+			ProjectileClass* Projectile = (ProjectileClass*)OtherActor;
+			if (Projectile && Projectile->GetOwner()->GetActorCollisionType() != CT_ENEMY) {
+				ApplyDamage(10.f);
+			}
+		}
+	}
+}
+
 void EnemyClass::ClearObject() {
+	m_bIsDead = m_bIsActive = false;
 	ClearProjectilePool();
-	m_bIsActive = false;
+	m_ActivedProjectiles.clear();
 }
 
 void EnemyClass::SpawnObject() {
@@ -86,16 +109,19 @@ void EnemyClass::SpawnObject() {
 
 void EnemyClass::PoolThisObject(std::vector<EnemyClass*>::iterator& It) {
 	if (It != m_ActivatedList->cend() && GetPoolManager()) {
-		ClearObject();
-
 		(*m_ObjectList)[GetPoolManager()->GetKeyByObjectName(m_Name)].push(*It);
 		It = m_ActivatedList->erase(It);
+		ClearObject();
 	}
 }
 
-bool EnemyClass::IsProjectileOutOfScreen(ProjectileClass* ProjectileObject) {
-	if (ProjectileObject->GetTexture()->GetPosition().x + ProjectileObject->GetTexture()->GetImageCenter().x < GetWindowSize().left) {
+bool EnemyClass::IsItOutOfScreen() {
+	if (m_Texture->GetPosition().x + m_Texture->GetImageCenter().x < GetWindowSize().left || m_Texture->GetPosition().y + m_Texture->GetImageCenter().y < GetWindowSize().top || m_Texture->GetPosition().y - m_Texture->GetImageCenter().y > GetWindowSize().bottom) {
 		return true;
 	}
 	return false;
+}
+
+void EnemyClass::OutOfScreen() {
+	m_bIsDead = true;
 }
