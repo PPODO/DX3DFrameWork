@@ -2,7 +2,7 @@
 #include "SystemClass.h"
 
 ProjectileClass::ProjectileClass() : m_ActivatedList(nullptr), m_ObjectList(nullptr), m_Owner(nullptr) {
-	SystemClass::GetInst()->GetEventClass()->BindTriggerEvent(this, std::bind(&ProjectileClass::OutOfScreen, this));
+	EventClass::GetInst()->BindTriggerEvent(this, std::bind(&ProjectileClass::OutOfScreen, this));
 	m_Collision = CT_PROJECTILE;
 	m_bIsActive = false;
 }
@@ -10,7 +10,7 @@ ProjectileClass::ProjectileClass() : m_ActivatedList(nullptr), m_ObjectList(null
 bool ProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
 	Actor::Init(Device, FileSrc, CustomRect);
 	
-	SystemClass::GetInst()->GetEventClass()->BindCollisionEvent(this);
+	EventClass::GetInst()->BindCollisionEvent(this);
 	return true;
 }
 

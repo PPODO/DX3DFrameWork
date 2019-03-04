@@ -11,9 +11,7 @@ private:
 	RECT m_WindowSize;
 
 	class D3DXClass* m_D3DX;
-	class EventClass* m_Event;
 	class ActorClass* m_ActorManager;
-	class LoadingClass* m_LoadingManager;
 	class InputClass* m_Input;
 
 	TimerClass Timer;
@@ -38,7 +36,6 @@ public:
 public:
 	inline void SetWaitForRender(bool b) { WaitForRender = b; }
 	inline HWND GetWindowHandle() const { return m_hWnd; }
-	inline class EventClass* GetEventClass() const { return m_Event; }
 	inline class InputClass* GetInputManager() const { return m_Input; }
 	inline class ActorClass* GetActorManager() const { return m_ActorManager; }
 	inline RECT GetWindowSize() const { return m_WindowSize; };

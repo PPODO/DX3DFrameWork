@@ -1,5 +1,4 @@
 #include "D3DXClass.h"
-#include <DxErr.h>
 
 D3DXClass::D3DXClass() : m_Device(nullptr), m_Direct9(nullptr) {
 }

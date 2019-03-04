@@ -1,7 +1,8 @@
-#include "BackGroundUIClass.h"
+#include "BackGroundClass.h"
 
-bool BackGroundUIClass::Init(LPDIRECT3DDEVICE9 Device, bool bIsMoving, LPCTSTR FileSrc, LPCTSTR FileSrc2) {
+bool BackGroundClass::Init(LPDIRECT3DDEVICE9 Device, bool bIsMoving, LPCTSTR FileSrc, LPCTSTR FileSrc2) {
 	Actor::Init(Device, FileSrc);
+
 	m_Texture->SetImageCenter(D3DXVECTOR3(0.f, 0.f, 0.f));
 	if (FileSrc2) {
 		m_SecondImage = new TextureClass(Device, FileSrc2);
@@ -15,8 +16,9 @@ bool BackGroundUIClass::Init(LPDIRECT3DDEVICE9 Device, bool bIsMoving, LPCTSTR F
 	return true;
 }
 
-void BackGroundUIClass::Update(float DeltaTime) {
+void BackGroundClass::Update(float DeltaTime) {
 	Actor::Update(DeltaTime);
+
 	if (bIsMovingScreen) {
 		BackgroundImageMoveProcessing(m_Texture);
 		if (m_SecondImage) {
@@ -25,15 +27,17 @@ void BackGroundUIClass::Update(float DeltaTime) {
 	}
 }
 
-void BackGroundUIClass::Render(LPD3DXSPRITE Sprite) {
+void BackGroundClass::Render(LPD3DXSPRITE Sprite) {
 	Actor::Render(Sprite);
+
 	if (m_SecondImage) {
 		m_SecondImage->Render(Sprite);
 	}
 }
 
-void BackGroundUIClass::Destroy() {
+void BackGroundClass::Destroy() {
 	Actor::Destroy();
+
 	if (m_SecondImage) {
 		delete m_SecondImage;
 		m_SecondImage = nullptr;

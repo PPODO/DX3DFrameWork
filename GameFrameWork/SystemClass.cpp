@@ -1,20 +1,24 @@
 #include "SystemClass.h"
-#include "MessageQueueClass.h"
-#include "EventClass.h"
-#include "GraphicClass.h"
 #include "D3DXClass.h"
 #include "ActorClass.h"
 #include "InputClass.h"
-#include "LoadingClass.h"
+#include "MessageQueueClass.h"
+#include "GraphicClass.h"
+#include "EventClass.h"
+#include "IdleScreenClass.h"
 
-SystemClass* SystemClass::m_Application = nullptr;
+SystemClass* SystemClass::m_Application;
 
-SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true), m_LoadingManager(nullptr), m_Input(nullptr), m_Event(nullptr) {
+SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true), m_Input(nullptr) {
 	MessageQueueClass::GetInst();
 	GraphicClass::GetInst();
+	EventClass::GetInst();
+	IdleScreenClass::GetInst();
 }
 
 SystemClass::~SystemClass() {
+	IdleScreenClass::DestroySingleton();
+	EventClass::DestroySingleton();
 	MessageQueueClass::DestroySingleton();
 }
 
@@ -69,47 +73,49 @@ bool SystemClass::Init() {
 	}
 	GetClientRect(m_hWnd, &m_WindowSize);
 
+	// DX 객체 생성
 	m_D3DX = new D3DXClass;
 	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
 		return false;
 	}
-
-	m_Event = new EventClass;
-	if (!m_Event) {
-		return false;
-	}
-
-	m_LoadingManager = new LoadingClass(2, m_D3DX->GetSprite());
-	if (!m_LoadingManager || !m_LoadingManager->Init(m_D3DX->GetDevice(), false, nullptr)) {
-		return false;
-	}
+	IdleScreenClass::GetInst()->Init(m_D3DX->GetDevice(), m_D3DX->GetSprite());
 	
+	// 입력 객체 생성
 	m_Input = new InputClass;
 	if (!m_Input) {
 		return false;
 	}
 
+	// 렌더링 스레드는 따로 스레드가 돌아가는데, 아래와 같이 메시지 큐로 수행하고 싶은 작업과 그 작업을 수행할 함수를 넘겨주면 됨.
+	// PushMessag(수행할 작업 열거형, 작업을 수행할 함수(인수가 std::function<void()>이기때문에 std::bind를 사용해서 함수를 넘겨줌.
+	// 구글에 std::function관련해서 검색하면 이해하기 더 수월할 듯
 	MessageQueueClass::GetInst()->PushMessage(MS_INIT, std::bind(&GraphicClass::Init, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite()));
-	m_LoadingManager->BeginDrawImage();
 
+	// 로딩화면 시작
+	IdleScreenClass::GetInst()->BeginDrawImage(ISS_LOADING);
+	
+	// 여기에서의 액터는 화면에 출력되는 모든 것을 뜻함, 리소스 로딩이 시간이 오래걸리므로 가장 마지막에 초기화를 해주는 것,
+	// 그렇기에 위에서 m_LoadingManager->BeginDrawImage()이 호출된 것. 이렇게 하면 ActorManager에서 리소스를 불러오는 동안, 로딩화면이 보여지게됨
 	m_ActorManager = new ActorClass;
 	if (!m_ActorManager || !m_ActorManager->Init(m_D3DX->GetDevice())) {
 		return false;
 	}
-
-	m_LoadingManager->ClearImage();
+	// 로딩화면 끝
+	IdleScreenClass::GetInst()->ClearImage();
 	return true;
 }
 
 bool SystemClass::Frame(float DeltaTime) {
-	WaitForRender = true;
-	m_ActorManager->Frame(DeltaTime);
-	if (m_ActorManager->GetCurrentStage() > 0) {
-		m_Input->Frame();
-	}
+	if (IdleScreenClass::GetInst()->GetWaitForSignal()) {
+		WaitForRender = true;
+		m_ActorManager->Frame(DeltaTime);
+		if (m_ActorManager->GetCurrentStage() > 0) {
+			m_Input->Frame();
+		}
 
-	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
-	while (WaitForRender);
+		MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
+		while (WaitForRender);
+	}
 	return true;
 }
 
@@ -134,6 +140,7 @@ void SystemClass::Run() {
 
 void SystemClass::ShutdownWindow() {
 	if (0) {
+		// 전체화면이였을 경우 디스플레이 설정을 초기화시킴.
 		ChangeDisplaySettings(nullptr, 0);
 	}
 	DestroyWindow(m_hWnd);
@@ -144,10 +151,6 @@ void SystemClass::ShutdownWindow() {
 }
 
 void SystemClass::Shutdown() {
-	if (m_Event) {
-		delete m_Event;
-		m_Event = nullptr;
-	}
 	if (m_ActorManager) {
 		delete m_ActorManager;
 		m_ActorManager = nullptr;
@@ -155,10 +158,6 @@ void SystemClass::Shutdown() {
 	if (m_Input) {
 		delete m_Input;
 		m_Input = nullptr;
-	}
-	if (m_LoadingManager) {
-		delete m_LoadingManager;
-		m_LoadingManager = nullptr;
 	}
 	if (m_D3DX) {
 		delete m_D3DX;
@@ -172,7 +171,6 @@ void SystemClass::Shutdown() {
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	switch (iMessage) {
-		// 해상도 기준이므로 수정ㅂㄹ
 	case WM_LBUTTONDOWN:
 		m_Input->MouseIsDown(m_ActorManager->GetCurrentStage(), LOWORD(lParam), HIWORD(lParam));
 		return 0;
@@ -193,6 +191,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT iMessage, WPARAM wP
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	// 윈도우를 파괴하는 메시지들만 WndProc에서 처리하고 나머지 키보드 입력, 마우스 입력등은 MessageHandler로 보내줌
 	switch (iMessage) {
 	case WM_DESTROY:
 		PostQuitMessage(0);

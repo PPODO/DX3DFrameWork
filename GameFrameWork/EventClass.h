@@ -1,4 +1,5 @@
 #pragma once
+#include "Singleton.h"
 #include "Actor.h"
 #include <thread>
 #include <mutex>
@@ -6,9 +7,9 @@
 #include <map>
 #include <utility>
 
-enum EventCondition { EC_COLLISION, EC_TRIGGER };
+enum EventCondition { EC_COLLISION, EC_TRIGGER, EC_BLOCK };
 
-class EventClass {
+class EventClass : public Singleton<EventClass> {
 private:
 	std::thread m_EventThread;
 	std::mutex m_Lock;

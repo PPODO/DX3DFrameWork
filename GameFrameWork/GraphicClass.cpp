@@ -1,16 +1,19 @@
 #include "GraphicClass.h"
 #include "Actor.h"
 
-GraphicClass* GraphicClass::m_Application = nullptr;
+GraphicClass* GraphicClass::m_Application;
 
 GraphicClass::GraphicClass() {
 	for (int i = 0; i < MaxRenderedThread; i++) {
 		m_RenderThread.push_back(std::thread([&]() {
 			while (true) {
 				try {
+					// MessageQueue객체에서 메시지를 뽑아와야 하는데, 상호배제를 안해줄 경우,
+					// 같은 메시지가 뽑혀 온다거나 하는 특수한 상황이 있을 수 있으므로 상호배제를 해줌.
 					std::unique_lock<std::mutex> Lock(m_Lock);
 					if (!MessageQueueClass::GetInst()->IsEmpty()) {
 						std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
+						Lock.unlock();
 						Excute(Task);
 					}
 				}
@@ -22,6 +25,7 @@ GraphicClass::GraphicClass() {
 }
 
 GraphicClass::~GraphicClass() {
+	// 스레드가 종료될 때 까지 대기
 	for (int i = 0; i < MaxRenderedThread; i++) {
 		m_RenderThread[i].join();
 	}

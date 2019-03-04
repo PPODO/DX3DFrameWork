@@ -6,7 +6,7 @@
 ObjectPoolClass* Pawn::m_PoolManager = nullptr;
 
 Pawn::Pawn() : m_XMoveSpeed(0.f), m_YMoveSpeed(0.f), m_FireDelay(0.f), m_MaxActivatedProjectile(0), m_CurrentProjectileStyle(PS_DEFAULT), m_Health(0.f), m_bIsDead(false), m_UseAutoSpawn(false) {
-	SystemClass::GetInst()->GetEventClass()->BindTriggerEvent(this, std::bind(&Pawn::OutOfScreen, this));
+	EventClass::GetInst()->BindTriggerEvent(this, std::bind(&Pawn::OutOfScreen, this));
 	m_LastFireTime = std::chrono::system_clock::now();
 }
 

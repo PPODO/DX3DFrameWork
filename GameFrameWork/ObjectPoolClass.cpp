@@ -17,10 +17,3 @@ ObjectPoolClass::~ObjectPoolClass() {
 	}
 	m_ObjectNames.clear();
 }
-
-void ObjectPoolClass::Release(std::string ObjectName, Actor* Object) {
-	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
-	if (It != m_Objects.cend()) {
-		It->second.push(Object);
-	}
-}

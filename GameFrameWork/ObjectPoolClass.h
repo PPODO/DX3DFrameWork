@@ -26,8 +26,6 @@ public:
 	template<typename T>
 	void ReleaseAll(std::string ObjectName, std::stack<T*>& Object, size_t ObjectSize);
 
-	void Release(std::string ObjectName, class Actor* Object);
-
 	inline short GetKeyByObjectName(const std::string& ObjectName) {
 		auto Object = m_ObjectNames.find(ObjectName);
 		if (Object != m_ObjectNames.cend()) {

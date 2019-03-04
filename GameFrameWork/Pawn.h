@@ -51,12 +51,13 @@ public:
 	void ClearActivatedProjectile();
 
 public:
+	virtual inline bool GetIsDead() const { return m_bIsDead; }
+
 	void SetProjectiles(std::stack<class ProjectileClass*>&, size_t MaxListProjectile, float FireDelay, bool UseAuto = false, const D3DXVECTOR3& Direction = D3DXVECTOR3(0.f,0.f,0.f));
 
 	void ApplyDamage(float f) { m_Health -= f; if (m_Health <= 0.f) { m_bIsDead = true; } }
 	void SetIsDead(bool b) { m_bIsDead = b; }
 	void SetHealth(float f) { m_Health = f; }
-	inline bool GetIsDead() const { return m_bIsDead; }
 	inline float GetHealth() const { return m_Health; }
 
 	inline size_t GetCurrentActivatedProjectiles() const { return m_ActivedProjectiles.size(); }

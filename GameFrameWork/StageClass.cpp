@@ -1,10 +1,11 @@
 #include "StageClass.h"
+#include "IdleScreenClass.h"
 #include "SystemClass.h"
-#include "BackGroundUIClass.h"
-#include "Actor.h"
+#include "BackGroundClass.h"
 #include "ActorClass.h"
+#include "Actor.h"
 
-StageClass::StageClass(std::vector<StageClass*>& Stages) : m_bUseTimer(false), m_StageTime(0.f), m_bIsStop(false), m_bNotificationForStop(false) {
+StageClass::StageClass(std::vector<StageClass*>& Stages) : m_bUseTimer(false), m_StageTime(0.f), m_bIsStop(false) {
 	Stages.push_back(this);
 }
 
@@ -13,12 +14,9 @@ StageClass::~StageClass() {
 
 void StageClass::Update(float DeltaTime) {
 	Actor::Update(DeltaTime);
+
 	if (m_bUseTimer && m_StageTime < std::chrono::system_clock::now() - m_StartTime) {
-		if (m_bIsStop) {
-			ReleaseForChangingStage();
-			SystemClass::GetInst()->GetActorManager()->SetCurrentStage(SystemClass::GetInst()->GetActorManager()->GetCurrentStage() + 1);
-		}
-		m_bNotificationForStop = true;
+		
 	}
 	m_BackGround->Update(DeltaTime);
 }
@@ -37,7 +35,9 @@ void StageClass::Destroy() {
 }
 
 void StageClass::ChangeStageNotification() {
+
 }
 
 void StageClass::ReleaseForChangingStage() {
+	IdleScreenClass::GetInst()->BeginDrawImage(ISS_FADE);
 }

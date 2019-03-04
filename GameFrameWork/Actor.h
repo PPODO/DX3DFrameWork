@@ -31,10 +31,10 @@ public:
 public:
 	void SetActivation(bool b) { m_bIsActive = b; }
 	void SetCollisionType(CollisionType CT) { m_Collision = CT; }
-	
+
+	class TextureClass* GetTexture() const { return m_Texture; }
 	inline CollisionType GetActorCollisionType() const { return m_Collision; }
 	inline bool GetIsActivation() const { return m_bIsActive; }
-	class TextureClass* GetTexture() const { return m_Texture; }
 	inline RECT GetWindowSize() const { return m_WindowSize; }
 
 };

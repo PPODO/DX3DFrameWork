@@ -1,15 +1,15 @@
 #pragma once
 #include "Actor.h"
-#include <vector>
 
 class TextClass : public Actor {
-public:
-	TextClass(std::vector<TextClass*>& m_Vectors);
+private:
+
 
 public:
-	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 });
-	virtual void Render(LPD3DXSPRITE Sprite);
-	virtual void Destroy();
+	TextClass();
+
+public:
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;
+	virtual void Update(float DeltaTime) override;
 
 };
-

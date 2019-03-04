@@ -4,6 +4,7 @@
 
 class ButtonClass : public Actor {
 private:
+	std::function<void()> m_Work;
 	bool m_bChangeButtonState;
 	unsigned short m_CurrentStage;
 
@@ -13,7 +14,9 @@ private:
 public:
 	ButtonClass(unsigned short);
 
-	bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, std::function<void()> Work);
+	bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, const std::function<void()>& Work);
+
+	void BindButtonAction();
 
 public:
 	class TextureClass* GetTexture() const { return m_Texture; }

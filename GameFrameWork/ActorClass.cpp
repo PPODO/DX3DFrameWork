@@ -1,12 +1,11 @@
 #include "ActorClass.h"
 #include "StageClass.h"
 #include "MenuStage.h"
-#include "InGameStage.h"
-#include "PlayerClass.h"
+#include "IntroduceStage.h"
+#include "PlayMethodStage.h"
+#include "ScoreStage.h"
+#include "CreditStage.h"
 #include "DefaultProjectileClass.h"
-#include "DefaultEnemyClass.h"
-#include "RushEnemyClass.h"
-#include "SplitEnemyClass.h"
 
 ActorClass::ActorClass() : m_CurrentStage(0) {
 }
@@ -21,11 +20,6 @@ ActorClass::~ActorClass() {
 	}
 	m_Stages.clear();
 
-	if (m_Player) {
-		m_Player->Destroy();
-		delete m_Player;
-		m_Player = nullptr;
-	}
 	if (m_PoolManager) {
 		delete m_PoolManager;
 		m_PoolManager = nullptr;
@@ -33,22 +27,16 @@ ActorClass::~ActorClass() {
 }
 
 bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
+	// 적이나 총알같은 경우는 미리 여러개의 객체를 만들어 놓고 필요할 때만 사용하는
+	// 풀 패턴을 쓰는게 효과적임
 	m_PoolManager = new ObjectPoolClass(Device);
 	if (!m_PoolManager) { return false; }
-	m_PoolManager->CreateObject<DefaultEnemyClass>("DefaultEnemy", 10, EN_DEFAULT);
-	m_PoolManager->CreateObject<RushEnemyClass>("RushEnemy", 10, EN_RUSH);
-	m_PoolManager->CreateObject<SplitEnemyClass>("SplitEnemy", 10, EN_SPLIT);
-/*	m_PoolManager->CreateObject<FlightEnemy>("FlightEnemy", 10, EN_FLIGHT);*/
-	m_PoolManager->CreateObject<DefaultProjectileClass>("DefaultProjectile", 150, PS_DEFAULT);
 
-	m_Player = new PlayerClass(m_PoolManager);
-	if (!m_Player) {
-		return false;
-	}
-	m_Player->Init(Device);
 	new MenuStage(m_Stages);
-	new InGameStage(m_Stages, 5);
-	(new InGameStage(m_Stages, 10))->SetObjectPoolAndPlayerClass(m_PoolManager, m_Player);
+	new IntroduceStage(m_Stages);
+	new PlayMethodStage(m_Stages);
+	new ScoreStage(m_Stages);
+	new CreditStage(m_Stages);
 
 	for (auto Stages : m_Stages) {
 		if (Stages) {
@@ -72,7 +60,9 @@ void ActorClass::Render(LPD3DXSPRITE Sprite) {
 
 void ActorClass::SetCurrentStage(unsigned short Value) {
 	if (Value < m_Stages.size()) {
+		unsigned short BeforeStage = m_CurrentStage;
 		m_CurrentStage = Value;
+		m_Stages[BeforeStage]->ReleaseForChangingStage();
 		m_Stages[m_CurrentStage]->ChangeStageNotification();
 	}
 }
