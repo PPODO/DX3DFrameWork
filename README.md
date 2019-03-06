@@ -10,3 +10,4 @@ TO DO
 7. ~로딩화면 구현~
 8. LoadingClass, EventClass 싱글톤 객체로 빼옴
 9. Collision Type Block으로 블록킹
+10. 적의 움직임을 sin, cos 그래프를 응용
