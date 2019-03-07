@@ -1,5 +1,4 @@
 #include "StageClass.h"
-#include "IdleScreenClass.h"
 #include "SystemClass.h"
 #include "BackGroundClass.h"
 #include "ActorClass.h"
@@ -10,6 +9,11 @@ StageClass::StageClass(std::vector<StageClass*>& Stages) : m_bUseTimer(false), m
 }
 
 StageClass::~StageClass() {
+}
+
+bool StageClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
+
+	return true;
 }
 
 void StageClass::Update(float DeltaTime) {
@@ -23,6 +27,7 @@ void StageClass::Update(float DeltaTime) {
 
 void StageClass::Render(LPD3DXSPRITE Sprite) {
 	Actor::Render(Sprite);
+
 	m_BackGround->Render(Sprite);
 }
 
@@ -35,9 +40,7 @@ void StageClass::Destroy() {
 }
 
 void StageClass::ChangeStageNotification() {
-
 }
 
 void StageClass::ReleaseForChangingStage() {
-	IdleScreenClass::GetInst()->BeginDrawImage(ISS_FADE);
 }

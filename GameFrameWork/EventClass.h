@@ -4,6 +4,7 @@
 #include <thread>
 #include <mutex>
 #include <unordered_map>
+#include <condition_variable>
 #include <map>
 #include <utility>
 
@@ -13,6 +14,7 @@ class EventClass : public Singleton<EventClass> {
 private:
 	std::thread m_EventThread;
 	std::mutex m_Lock;
+	std::condition_variable m_Condition;
 
 	bool m_bIsStop;
 
@@ -31,5 +33,9 @@ public:
 public:
 	void BindCollisionEvent(class Actor*);
 	void BindTriggerEvent(class Actor*, const std::function<void()>& Function);
+
+	void WakeUpEventThread() {
+		m_Condition.notify_all();
+	}
 
 };

@@ -1,7 +1,7 @@
 #include "ProjectileClass.h"
 #include "SystemClass.h"
 
-ProjectileClass::ProjectileClass() : m_ActivatedList(nullptr), m_ObjectList(nullptr), m_Owner(nullptr) {
+ProjectileClass::ProjectileClass() : m_Owner(nullptr) {
 	EventClass::GetInst()->BindTriggerEvent(this, std::bind(&ProjectileClass::OutOfScreen, this));
 	m_Collision = CT_PROJECTILE;
 	m_bIsActive = false;
@@ -26,27 +26,20 @@ void ProjectileClass::Render(LPD3DXSPRITE Sprite) {
 
 void ProjectileClass::Destroy() {
 	Actor::Destroy();
-	if (m_ActivatedList) {
-		m_ActivatedList = nullptr;
-	}
-	if (m_ObjectList) {
-		m_ObjectList = nullptr;
-	}
+
 	if (m_Owner) {
 		m_Owner = nullptr;
 	}
 }
 
-void ProjectileClass::TriggerCollisionEventByOtherActor(Actor* OtherActor) {
+void ProjectileClass::CollisionEventByOtherActor(Actor* OtherActor) {
 	if (OtherActor && OtherActor != this && OtherActor != m_Owner && m_Owner->GetActorCollisionType() != OtherActor->GetActorCollisionType()) {
 		m_bIsActive = false;
 	}
 }
 
-void ProjectileClass::SpawnProjectile(Actor* Owner, const D3DXVECTOR3 & Location, const D3DXVECTOR3 & Direction, std::stack<ProjectileClass*>* ObjectList, std::vector<ProjectileClass*>* ActivatedList) {
+void ProjectileClass::SpawnProjectile(Actor* Owner, const D3DXVECTOR3 & Location, const D3DXVECTOR3 & Direction) {
 	Owner ? m_Owner = Owner : m_Owner = nullptr;
-	ObjectList ? m_ObjectList = ObjectList : m_ObjectList = nullptr;
-	ActivatedList ? m_ActivatedList = ActivatedList : m_ActivatedList = nullptr;
 
 	m_Texture->SetPosition(Location);
 	m_MoveDirection = Direction;
@@ -55,8 +48,6 @@ void ProjectileClass::SpawnProjectile(Actor* Owner, const D3DXVECTOR3 & Location
 
 void ProjectileClass::ClearObject() {
 	m_Owner = nullptr;
-	m_ObjectList = nullptr;
-	m_ActivatedList = nullptr;
 	m_bIsActive = false;
 }
 

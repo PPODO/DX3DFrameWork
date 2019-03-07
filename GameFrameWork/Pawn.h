@@ -2,40 +2,44 @@
 #include "Actor.h"
 #include "TextureClass.h"
 #include "ObjectPoolClass.h"
+#include "ProjectileClass.h"
 #include <chrono>
 #include <stack>
+#include <vector>
 
 enum ScreenCoord { XSCREEN, YSCREEN };
 
 enum ProjectileStyle;
 
+const float VelocityY = -5.0f;
+const float Gravity = 0.5f;
+
 class Pawn : public Actor {
 private:
-	static ObjectPoolClass* m_PoolManager;
-
 	std::chrono::system_clock::time_point m_LastFireTime;
-	ProjectileStyle m_CurrentProjectileStyle;
+	bool m_bIsJumping, m_bIsFalling, m_Landed;
+	float m_CurrentVelocityY;
 
 protected:
-	float m_Health;
-	bool m_bIsDead;
+	static class ObjectPoolClass* m_PoolManager;
 
-	bool m_UseAutoSpawn;
-	D3DXVECTOR3 m_ProjectileDirection;
-	size_t m_MaxActivatedProjectile;
-	std::chrono::duration<float> m_FireDelay;
+protected:
+	float m_XMoveSpeed, m_YMoveSpeed;
+
+protected:
 	std::vector<std::stack<class ProjectileClass*>> m_Projectiles;
-	std::vector<class ProjectileClass*> m_ActivedProjectiles;
+	std::vector<class ProjectileClass*> m_ActivatedProjectile;
 
-	float m_XMoveSpeed;
-	float m_YMoveSpeed;
+	std::chrono::duration<float> m_FireDelay;
+
+	ProjectileStyle m_CurrentProjectileStyle;
+	size_t m_MaxActiveProjectile;
 
 protected:
+	void ClearProjectile();
 	void ClearProjectilePool();
 
-protected:
-	void SetPoolManager(ObjectPoolClass* OP) { m_PoolManager = OP; }
-	ObjectPoolClass* GetPoolManager() const { return m_PoolManager; }
+	void SpawnProjectile(const D3DXVECTOR3&);
 
 public:
 	Pawn();
@@ -47,19 +51,9 @@ public:
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
 
-	void SpawnProjectile(const D3DXVECTOR3&);
-	void ClearActivatedProjectile();
-
 public:
-	virtual inline bool GetIsDead() const { return m_bIsDead; }
+	void SetJumping(bool b) { if (!m_bIsJumping) { m_bIsJumping = b; m_CurrentVelocityY = VelocityY; m_Landed = false; } }
+	void SetLanded(bool b) { if (m_bIsFalling) { m_Landed = b; m_bIsJumping = m_bIsFalling = false; } }
 
-	void SetProjectiles(std::stack<class ProjectileClass*>&, size_t MaxListProjectile, float FireDelay, bool UseAuto = false, const D3DXVECTOR3& Direction = D3DXVECTOR3(0.f,0.f,0.f));
 
-	void ApplyDamage(float f) { m_Health -= f; if (m_Health <= 0.f) { m_bIsDead = true; } }
-	void SetIsDead(bool b) { m_bIsDead = b; }
-	void SetHealth(float f) { m_Health = f; }
-	inline float GetHealth() const { return m_Health; }
-
-	inline size_t GetCurrentActivatedProjectiles() const { return m_ActivedProjectiles.size(); }
-	TextureClass* GetTexture() const { return m_Texture; }
 };

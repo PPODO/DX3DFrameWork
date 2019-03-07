@@ -5,7 +5,6 @@
 #include "MessageQueueClass.h"
 #include "GraphicClass.h"
 #include "EventClass.h"
-#include "IdleScreenClass.h"
 
 SystemClass* SystemClass::m_Application;
 
@@ -13,12 +12,9 @@ SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nul
 	MessageQueueClass::GetInst();
 	GraphicClass::GetInst();
 	EventClass::GetInst();
-	IdleScreenClass::GetInst();
 }
 
 SystemClass::~SystemClass() {
-	IdleScreenClass::DestroySingleton();
-	EventClass::DestroySingleton();
 	MessageQueueClass::DestroySingleton();
 }
 
@@ -73,49 +69,35 @@ bool SystemClass::Init() {
 	}
 	GetClientRect(m_hWnd, &m_WindowSize);
 
-	// DX 객체 생성
 	m_D3DX = new D3DXClass;
 	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
 		return false;
 	}
-	IdleScreenClass::GetInst()->Init(m_D3DX->GetDevice(), m_D3DX->GetSprite());
 	
-	// 입력 객체 생성
 	m_Input = new InputClass;
 	if (!m_Input) {
 		return false;
 	}
 
-	// 렌더링 스레드는 따로 스레드가 돌아가는데, 아래와 같이 메시지 큐로 수행하고 싶은 작업과 그 작업을 수행할 함수를 넘겨주면 됨.
-	// PushMessag(수행할 작업 열거형, 작업을 수행할 함수(인수가 std::function<void()>이기때문에 std::bind를 사용해서 함수를 넘겨줌.
-	// 구글에 std::function관련해서 검색하면 이해하기 더 수월할 듯
 	MessageQueueClass::GetInst()->PushMessage(MS_INIT, std::bind(&GraphicClass::Init, GraphicClass::GetInst(), m_D3DX->GetDevice(), m_D3DX->GetSprite()));
-
-	// 로딩화면 시작
-	IdleScreenClass::GetInst()->BeginDrawImage(ISS_LOADING);
 	
-	// 여기에서의 액터는 화면에 출력되는 모든 것을 뜻함, 리소스 로딩이 시간이 오래걸리므로 가장 마지막에 초기화를 해주는 것,
-	// 그렇기에 위에서 m_LoadingManager->BeginDrawImage()이 호출된 것. 이렇게 하면 ActorManager에서 리소스를 불러오는 동안, 로딩화면이 보여지게됨
 	m_ActorManager = new ActorClass;
 	if (!m_ActorManager || !m_ActorManager->Init(m_D3DX->GetDevice())) {
 		return false;
 	}
-	// 로딩화면 끝
-	IdleScreenClass::GetInst()->ClearImage();
+
 	return true;
 }
 
 bool SystemClass::Frame(float DeltaTime) {
-	if (IdleScreenClass::GetInst()->GetWaitForSignal()) {
-		WaitForRender = true;
-		m_ActorManager->Frame(DeltaTime);
-		if (m_ActorManager->GetCurrentStage() > 0) {
-			m_Input->Frame();
-		}
-
-		MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
-		while (WaitForRender);
+	WaitForRender = true;
+	m_ActorManager->Frame(DeltaTime);
+	if (m_ActorManager->GetCurrentStage() > 0) {
+		m_Input->Frame();
 	}
+	
+	MessageQueueClass::GetInst()->PushMessage(MS_RENDER, std::bind(&GraphicClass::Render, GraphicClass::GetInst(), [this]() { m_ActorManager->Render(m_D3DX->GetSprite()); }));
+	while (WaitForRender);
 	return true;
 }
 
@@ -151,6 +133,9 @@ void SystemClass::ShutdownWindow() {
 }
 
 void SystemClass::Shutdown() {
+	EventClass::DestroySingleton();
+	MessageQueueClass::GetInst()->PushMessage(MS_DESTROY, []() {});
+
 	if (m_ActorManager) {
 		delete m_ActorManager;
 		m_ActorManager = nullptr;
@@ -163,7 +148,6 @@ void SystemClass::Shutdown() {
 		delete m_D3DX;
 		m_D3DX = nullptr;
 	}
-	MessageQueueClass::GetInst()->PushMessage(MS_DESTROY, []() {});
 
 	ShutdownWindow();
 	DestroySingleton();

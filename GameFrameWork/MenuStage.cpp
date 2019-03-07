@@ -9,11 +9,13 @@ MenuStage::~MenuStage() {
 }
 
 bool MenuStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
+	StageClass::Init(Device);
+
 	m_BackGround = new BackGroundClass;
 	if (!m_BackGround) {
 		return false;
 	}
-	m_BackGround->Init(Device, false, L"Stage/Menu.png");
+	m_BackGround->Init(Device, L"Stage/Menu.png");
 
 	{
 		ButtonClass* StartButton = new ButtonClass(SS_MENU);
@@ -81,7 +83,6 @@ void MenuStage::Render(LPD3DXSPRITE Sprite) {
 			It->Render(Sprite);
 		}
 	}
-
 	m_Text->Render(Sprite);
 }
 
@@ -101,4 +102,8 @@ void MenuStage::Destroy() {
 		}
 	}
 	m_Button.clear();
+}
+
+void MenuStage::ReleaseForChangingStage() {
+	EventClass::GetInst()->WakeUpEventThread();
 }

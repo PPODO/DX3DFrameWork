@@ -6,7 +6,7 @@ DefaultProjectileClass::DefaultProjectileClass() {
 }
 
 bool DefaultProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
-	ProjectileClass::Init(Device, L"DefaultProjectile.png");
+	ProjectileClass::Init(Device, L"Projectile/DefaultProjectile.png");
 
 	return true;
 }

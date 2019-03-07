@@ -8,11 +8,13 @@ IntroduceStage::~IntroduceStage() {
 }
 
 bool IntroduceStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
+	StageClass::Init(Device);
+
 	m_BackGround = new BackGroundClass;
 	if (!m_BackGround) {
 		return false;
 	}
-	m_BackGround->Init(Device, false, L"Stage/Introduce.png");
+	m_BackGround->Init(Device, L"Stage/Introduce.png");
 
 	m_BackButton = new ButtonClass(SS_INTRODUCE);
 	if (!m_BackButton) {

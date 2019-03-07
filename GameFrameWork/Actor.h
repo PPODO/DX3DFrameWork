@@ -3,7 +3,7 @@
 #include <vector>
 #include "EventClass.h"
 
-enum CollisionType { CT_PLAYER, CT_ENEMY, CT_PROJECTILE };
+enum CollisionType { CT_NONE, CT_PLAYER, CT_ENEMY, CT_PROJECTILE, CT_ALLBLOCK };
 
 class Actor {
 private:
@@ -25,7 +25,7 @@ public:
 	virtual void Update(float DeltaTime);
 	virtual void Render(LPD3DXSPRITE Sprite);
 	virtual void Destroy();
-	virtual void TriggerCollisionEventByOtherActor(Actor*);
+	virtual void CollisionEventByOtherActor(Actor*);
 	virtual bool IsItOutOfScreen();
 
 public:

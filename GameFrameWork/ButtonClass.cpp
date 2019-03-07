@@ -4,9 +4,10 @@
 #include "InputClass.h"
 
 ButtonClass::ButtonClass(unsigned short CurrentStage) : m_bChangeButtonState(false), m_CurrentStage(CurrentStage) {
+	m_Work = 0;
 }
 
-bool ButtonClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, const std::function<void()>& Work) {
+bool ButtonClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, std::function<void()> Work) {
 	Actor::Init(Device, FileSrc);
 
 	m_Work = Work;
@@ -26,5 +27,5 @@ void ButtonClass::ChangeButtonState() {
 void ButtonClass::BindButtonAction() {
 	D3DXVECTOR3 ButtonPosition = m_Texture->GetPosition() - m_Texture->GetImageCenter();
 	RECT ButtonRect = RECT{ (LONG)ButtonPosition.x - m_Texture->m_ImageRect.left, (LONG)ButtonPosition.y - m_Texture->m_ImageRect.top, (LONG)ButtonPosition.x + m_Texture->m_ImageRect.right, (LONG)ButtonPosition.y + m_Texture->m_ImageRect.bottom };
-	SystemClass::GetInst()->GetInputManager()->BindMouseActionDelegate(m_CurrentStage, ButtonRect, std::bind(&ButtonClass::ChangeButtonState, this), m_Work ? m_Work : []() {});
+	SystemClass::GetInst()->GetInputManager()->BindMouseActionDelegate(m_CurrentStage, ButtonRect, std::bind(&ButtonClass::ChangeButtonState, this), m_Work);
 }

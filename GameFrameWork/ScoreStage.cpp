@@ -8,11 +8,13 @@ ScoreStage::~ScoreStage() {
 }
 
 bool ScoreStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
+	StageClass::Init(Device);
+
 	m_BackGround = new BackGroundClass;
 	if (!m_BackGround) {
 		return false;
 	}
-	m_BackGround->Init(Device, false, L"Stage/Score.png");
+	m_BackGround->Init(Device, L"Stage/Score.png");
 
 	m_BackButton = new ButtonClass(SS_SCORE);
 	if (!m_BackButton) {

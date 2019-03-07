@@ -8,12 +8,13 @@ GraphicClass::GraphicClass() {
 		m_RenderThread.push_back(std::thread([&]() {
 			while (true) {
 				try {
-					// MessageQueue객체에서 메시지를 뽑아와야 하는데, 상호배제를 안해줄 경우,
-					// 같은 메시지가 뽑혀 온다거나 하는 특수한 상황이 있을 수 있으므로 상호배제를 해줌.
 					std::unique_lock<std::mutex> Lock(m_Lock);
+					// 메시지 큐가 비어 있지 않을 경우
 					if (!MessageQueueClass::GetInst()->IsEmpty()) {
+						// 큐에서 메시지를 빼온다.
 						std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
 						Lock.unlock();
+						// 빼온 메시지를 실행.
 						Excute(Task);
 					}
 				}
@@ -25,7 +26,6 @@ GraphicClass::GraphicClass() {
 }
 
 GraphicClass::~GraphicClass() {
-	// 스레드가 종료될 때 까지 대기
 	for (int i = 0; i < MaxRenderedThread; i++) {
 		m_RenderThread[i].join();
 	}

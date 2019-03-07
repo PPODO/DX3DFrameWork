@@ -2,11 +2,13 @@
 #include "SystemClass.h"
 #include "ActorClass.h"
 #include "ProjectileClass.h"
+#include "EventClass.h"
 
 ObjectPoolClass* Pawn::m_PoolManager = nullptr;
 
-Pawn::Pawn() : m_XMoveSpeed(0.f), m_YMoveSpeed(0.f), m_FireDelay(0.f), m_MaxActivatedProjectile(0), m_CurrentProjectileStyle(PS_DEFAULT), m_Health(0.f), m_bIsDead(false), m_UseAutoSpawn(false) {
+Pawn::Pawn() : m_XMoveSpeed(0.f), m_YMoveSpeed(0.f), m_MaxActiveProjectile(0), m_CurrentVelocityY(0.f), m_bIsJumping(false), m_Landed(false), m_bIsFalling(false), m_CurrentProjectileStyle(PS_DEFAULT) {
 	EventClass::GetInst()->BindTriggerEvent(this, std::bind(&Pawn::OutOfScreen, this));
+	EventClass::GetInst()->BindCollisionEvent(this);
 	m_LastFireTime = std::chrono::system_clock::now();
 }
 
@@ -16,6 +18,10 @@ Pawn::~Pawn() {
 bool Pawn::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
 	Actor::Init(Device, FileSrc, CustomRect);
 	
+	if (!m_PoolManager) {
+		return false;
+	}
+
 	SetupPlayerInput();
 	return true;
 }
@@ -26,28 +32,36 @@ void Pawn::SetupPlayerInput() {
 void Pawn::Update(float DeltaTime) {
 	Actor::Update(DeltaTime);
 
-	if (m_UseAutoSpawn) {
-		SpawnProjectile(m_ProjectileDirection);
+	if (!m_Landed && !m_bIsJumping) {
+		m_Texture->AddYPosition(5.f);
+		m_bIsFalling = true;
 	}
-	for (auto Iterator = m_ActivedProjectiles.begin(); Iterator != m_ActivedProjectiles.end();) {
-		if ((*Iterator)->GetIsActivation()) {
-			(*Iterator)->Update(DeltaTime);
-			Iterator++;
+
+	if (m_bIsJumping && !m_Landed) {
+		if (m_CurrentVelocityY <= 0.f) {
+			m_bIsFalling = true;
+		}
+		m_Texture->AddYPosition(m_CurrentVelocityY);
+		m_CurrentVelocityY += Gravity;
+	}
+
+	for (auto It = m_ActivatedProjectile.begin(); It != m_ActivatedProjectile.end();) {
+		if ((*It) && (*It)->GetIsActivation()) {
+			(*It)->Update(DeltaTime);
+			++It;
 		}
 		else {
-			(*Iterator)->PoolThisObject(Iterator);
+			(*It)->PoolThisObject(m_Projectiles[m_PoolManager->GetKeyByObjectName((*It)->GetName())], m_ActivatedProjectile, It);
 		}
 	}
 }
 
 void Pawn::Render(LPD3DXSPRITE Sprite) {
-	if (!m_bIsDead) {
-		Actor::Render(Sprite);
-	}
+	Actor::Render(Sprite);
 
-	for (auto Iterator : m_ActivedProjectiles) {
-		if (Iterator->GetIsActivation()) {
-			Iterator->Render(Sprite);
+	for (const auto& It : m_ActivatedProjectile) {
+		if (It) {
+			It->Render(Sprite);
 		}
 	}
 }
@@ -58,54 +72,35 @@ void Pawn::Destroy() {
 	ClearProjectilePool();
 }
 
-void Pawn::SetProjectiles(std::stack<class ProjectileClass*>& List, size_t MaxListProjectile, float FireDelay, bool UseAuto, const D3DXVECTOR3& Direction) {
-	m_UseAutoSpawn = UseAuto;
-	m_ProjectileDirection = Direction;
-	m_Projectiles.push_back(List);
-	m_MaxActivatedProjectile = MaxListProjectile;
-	m_FireDelay = std::chrono::duration<float>(FireDelay);
+void Pawn::ClearProjectile() {
+	for (auto& It : m_ActivatedProjectile) {
+		It->SetActivation(false);
+		m_Projectiles[m_PoolManager->GetKeyByObjectName(It->GetName())].push(It);
+	}
+	m_ActivatedProjectile.clear();
+}
+
+void Pawn::ClearProjectilePool() {
+	ClearProjectile();
+
+	for (auto It : m_Projectiles) {
+		if (It.size() > 0) {
+			m_PoolManager->ReleaseAll(It.top()->GetName(), It, It.size());
+		}
+	}
+	m_Projectiles.clear();
 }
 
 void Pawn::SpawnProjectile(const D3DXVECTOR3& Direction) {
 	auto CurrentTime = std::chrono::system_clock::now();
 
-	if (m_ActivedProjectiles.size() < m_MaxActivatedProjectile && m_FireDelay < CurrentTime - m_LastFireTime) {
+	if (m_ActivatedProjectile.size() < m_MaxActiveProjectile && m_Projectiles[m_CurrentProjectileStyle].size() > 0 && m_FireDelay < CurrentTime - m_LastFireTime) {
 		ProjectileClass* Projectile = m_Projectiles[m_CurrentProjectileStyle].top();
 		if (Projectile) {
-			D3DXVECTOR3 Temp(m_Texture->GetImageCenter().x * Direction.x, m_Texture->GetImageCenter().y * Direction.y, 0.f);
-			Temp += Projectile->GetTexture()->GetImageCenter();
-			Projectile->SpawnProjectile(this, m_Texture->GetPosition() + Temp, Direction, &m_Projectiles[m_CurrentProjectileStyle], &m_ActivedProjectiles);
+			Projectile->SpawnProjectile(this, D3DXVECTOR3(m_Texture->GetPosition().x + (Direction.x * m_Texture->GetImageCenter().x), m_Texture->GetPosition().y, 0.f), Direction);
+			m_ActivatedProjectile.push_back(Projectile);
 			m_Projectiles[m_CurrentProjectileStyle].pop();
-			m_ActivedProjectiles.push_back(Projectile);
 		}
 		m_LastFireTime = CurrentTime;
-	}
-}
-
-void Pawn::ClearActivatedProjectile() {
-	for (auto& It : m_Projectiles) {
-		for (auto Iterator = m_ActivedProjectiles.begin(); Iterator != m_ActivedProjectiles.end();) {
-			if (Iterator != m_ActivedProjectiles.cend()) {
-				It.push(*Iterator);
-				Iterator = m_ActivedProjectiles.erase(Iterator);
-			}
-		}
-	}
-}
-
-void Pawn::ClearProjectilePool() {
-	for (auto& It : m_Projectiles) {
-		for (auto Iterator = m_ActivedProjectiles.begin(); Iterator != m_ActivedProjectiles.end();) {
-			if (Iterator != m_ActivedProjectiles.cend()) {
-				It.push(*Iterator);
-				Iterator = m_ActivedProjectiles.erase(Iterator);
-			}
-		}
-		if (It.size() > 0) {
-			if (!m_PoolManager) {
-				m_PoolManager = SystemClass::GetInst()->GetActorManager()->GetPoolManager();
-			}
-			m_PoolManager->ReleaseAll(It.top()->GetName(), It, It.size());
-		}
 	}
 }

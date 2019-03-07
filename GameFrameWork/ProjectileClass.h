@@ -11,12 +11,9 @@ enum ProjectileStyle { PS_DEFAULT, PS_LASER, PS_HOMING, PS_COUNT };
 class ProjectileClass : public Actor {
 private:
 	Actor* m_Owner;
-	std::stack<ProjectileClass*>* m_ObjectList;
-	std::vector<ProjectileClass*>* m_ActivatedList;
 
 protected:
 	std::string m_Name;
-
 	D3DXVECTOR3 m_MoveDirection;
 
 protected:
@@ -31,13 +28,13 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void Destroy() override;
-	virtual void TriggerCollisionEventByOtherActor(Actor*);
+	virtual void CollisionEventByOtherActor(Actor*) override;
 
 public:
-	void SpawnProjectile(Actor* Owner, const D3DXVECTOR3& Location, const D3DXVECTOR3& Direction, std::stack<ProjectileClass*>* ObjectList, std::vector<ProjectileClass*>* ActivatedList);
+	void SpawnProjectile(Actor* Owner, const D3DXVECTOR3& Location, const D3DXVECTOR3& Direction);
 	void ClearObject();
 
-	inline void PoolThisObject(std::vector<class ProjectileClass*>::iterator&);
+	inline void PoolThisObject(std::stack<ProjectileClass*>&, std::vector<ProjectileClass*>&, std::vector<ProjectileClass*>::iterator&);
 
 public:
 	inline std::string GetName() const { return m_Name; }
@@ -45,10 +42,8 @@ public:
 
 };
 
-inline void ProjectileClass::PoolThisObject(std::vector<class ProjectileClass*>::iterator& Iterator) {
-	if (m_ObjectList && m_ActivatedList && Iterator != m_ActivatedList->cend()) {
-		m_ObjectList->push(*Iterator);
-		Iterator = m_ActivatedList->erase(Iterator);
-		ClearObject();
-	}
+inline void ProjectileClass::PoolThisObject(std::stack<ProjectileClass*>& Projectiles, std::vector<ProjectileClass*>& ActivatedProjectile, std::vector<class ProjectileClass*>::iterator& Iterator) {
+	Projectiles.push((*Iterator));
+	Iterator = ActivatedProjectile.erase(Iterator);
+	ClearObject();
 }
