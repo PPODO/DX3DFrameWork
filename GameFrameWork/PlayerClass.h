@@ -1,29 +1,27 @@
 #pragma once
-#include "Pawn.h"
+#include "PawnClass.h"
 
-class PlayerClass : public Pawn {
+#define FLOATNearlyEqual 2.5f
+
+enum EPlayerType { EPT_DEFAULT };
+
+class PlayerClass : public PawnClass {
 private:
-
-private:
-	void MoveRight(float Value);
-	void FireProjectile(float Value);
-
 	void Jump();
+	void MoveRight(float Value);
 
 protected:
-	virtual void OutOfScreen() override;
+	virtual void SetupPlayerInput() override;
+	virtual void PlayStartMoveToLocation() override;
 
 public:
-	PlayerClass(class ObjectPoolClass*);
+	PlayerClass();
 	virtual ~PlayerClass() override;
 
 public:
-	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 }) override;
-	virtual void SetupPlayerInput();
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = L"") override;
 	virtual void Update(float DeltaTime) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
-	virtual void Destroy() override;
-	virtual bool IsItOutOfScreen() override;
-	virtual void CollisionEventByOtherActor(Actor*) override;
+	virtual void CollisionEventBeginByOtherActor(Actor*) override;
 
 };

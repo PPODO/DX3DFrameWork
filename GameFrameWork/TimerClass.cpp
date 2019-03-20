@@ -8,7 +8,6 @@ TimerClass::~TimerClass() {
 }
 
 bool TimerClass::UpdateFPS(float& DeltaTime) {
-	// 초당 FPS 제한, DeltaTime 구하는 공식
 	DWORD CurTime = timeGetTime();
 	DeltaTime = (CurTime - m_LastTime) * 0.001f;
 	m_TimeElapsed += DeltaTime;

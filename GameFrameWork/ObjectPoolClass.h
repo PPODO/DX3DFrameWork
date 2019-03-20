@@ -11,7 +11,11 @@ class ObjectPoolClass {
 private:
 	LPDIRECT3DDEVICE9 m_Device;
 	std::vector<std::pair<std::string, std::stack<class Actor*>>> m_Objects;
+	std::vector<std::pair<std::string, size_t>> m_ObjectTypeNames;
 	std::map<std::string, short> m_ObjectNames;
+
+private:
+	inline void GetTypeNameByObjectName(const std::string& ObjectName);
 
 public:
 	ObjectPoolClass(const LPDIRECT3DDEVICE9 Device);
@@ -33,6 +37,14 @@ public:
 		}
 		return -1;
 	}
+
+	inline int GetObjectTypeCountByName(const std::string& Name) {
+		auto It = std::find_if(m_ObjectTypeNames.begin(), m_ObjectTypeNames.end(), [&](const std::pair<std::string, size_t>& Param) {if (Param.first.compare(Name)) { return true; } return false; });
+		if (It != m_ObjectTypeNames.cend()) {
+			return It->second;
+		}
+		return -1;
+	}
 };
 
 template<typename T>
@@ -45,6 +57,7 @@ inline void ObjectPoolClass::CreateObject(std::string ObjectName, size_t ObjectC
 	}
 	m_Objects.push_back(std::make_pair(ObjectName, Objects));
 	m_ObjectNames.insert(std::make_pair(ObjectName, Key));
+	GetTypeNameByObjectName(ObjectName);
 }
 
 template<typename T>
@@ -62,5 +75,24 @@ void ObjectPoolClass::ReleaseAll(std::string ObjectName, std::stack<T*>& Object,
 	for (size_t i = 0; i < ObjectSize; i++) {
 		It->second.push(Object.top());
 		Object.pop();
+	}
+}
+
+inline void ObjectPoolClass::GetTypeNameByObjectName(const std::string& ObjectName) {
+	size_t Distance = 0;
+	for (auto Iterator = ObjectName.begin(); Iterator != ObjectName.end(); Iterator++) {
+		if ((*Iterator) == '_') {
+			Distance = Iterator - ObjectName.begin();
+			break;
+		}
+	}
+	if (Distance > 0) {
+		auto It = std::find_if(m_ObjectTypeNames.begin(), m_ObjectTypeNames.end(), [&](const std::pair<std::string, size_t>& Param) {if (Param.first.compare(ObjectName.substr(0, Distance))) { return true; } return false; });
+		if (It != m_ObjectTypeNames.cend()) {
+			It->second++;
+		}
+		else {
+			m_ObjectTypeNames.push_back(std::make_pair(ObjectName.substr(0, Distance), 1));
+		}
 	}
 }

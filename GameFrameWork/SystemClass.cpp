@@ -92,7 +92,7 @@ bool SystemClass::Init() {
 bool SystemClass::Frame(float DeltaTime) {
 	WaitForRender = true;
 	m_ActorManager->Frame(DeltaTime);
-	if (m_ActorManager->GetCurrentStage() > 0) {
+	if (m_ActorManager->GetCurrentStage() >= 0) {
 		m_Input->Frame();
 	}
 	
@@ -122,7 +122,6 @@ void SystemClass::Run() {
 
 void SystemClass::ShutdownWindow() {
 	if (0) {
-		// 전체화면이였을 경우 디스플레이 설정을 초기화시킴.
 		ChangeDisplaySettings(nullptr, 0);
 	}
 	DestroyWindow(m_hWnd);
@@ -175,7 +174,6 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT iMessage, WPARAM wP
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	// 윈도우를 파괴하는 메시지들만 WndProc에서 처리하고 나머지 키보드 입력, 마우스 입력등은 MessageHandler로 보내줌
 	switch (iMessage) {
 	case WM_DESTROY:
 		PostQuitMessage(0);

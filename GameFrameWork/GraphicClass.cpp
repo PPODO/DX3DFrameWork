@@ -9,12 +9,9 @@ GraphicClass::GraphicClass() {
 			while (true) {
 				try {
 					std::unique_lock<std::mutex> Lock(m_Lock);
-					// 메시지 큐가 비어 있지 않을 경우
 					if (!MessageQueueClass::GetInst()->IsEmpty()) {
-						// 큐에서 메시지를 빼온다.
 						std::tuple<MessageState, std::function<void()>> Task = MessageQueueClass::GetInst()->PopMessage();
 						Lock.unlock();
-						// 빼온 메시지를 실행.
 						Excute(Task);
 					}
 				}

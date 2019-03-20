@@ -14,13 +14,13 @@ InputClass::~InputClass() {
 }
 
 void InputClass::Frame() {
-	// Axis 키가 비어 있지 않았을 경우
 	if (!m_AxisKeys.empty()) {
 		for (auto AxisKey : m_AxisKeys) {
-			// 현재 키가 눌러져 있는지
 			if (std::get<0>(AxisKey.second)) {
-				// 눌러져 있다면 함수를 실행
-				std::get<1>(AxisKey.second)();
+				std::get<1>(AxisKey.second)(std::get<2>(AxisKey.second));
+			}
+			else {
+				std::get<1>(AxisKey.second)(0.f);
 			}
 		}
 	}
@@ -35,16 +35,11 @@ void InputClass::KeyIsUp(unsigned short Key) {
 }
 
 void InputClass::MouseIsDown(unsigned short Key, short X, short Y) {
-	// Key와 동일한 값을 가지고 있는 데이터의 영역을 구해옴.
 	auto Iterator = m_MouseActions.equal_range(Key);
-	// 찾았을 경우
 	if (Iterator.first != m_MouseActions.cend()) {
-		// 데이터 영역을 처음부터 끝까지 돌림
 		for (auto It = Iterator.first; It != Iterator.second; ++It) {
-			// 현재 마우스 좌표와 오버랩되는 버튼이 있는지 검사
 			if (CheckPosInRect(std::get<0>(It->second), X, Y)) {
 				m_MouseActionDataSave = &It->second;
-				// 버튼 색상을 변경
 				std::get<1>(*m_MouseActionDataSave)();
 				break;
 			}
@@ -53,29 +48,23 @@ void InputClass::MouseIsDown(unsigned short Key, short X, short Y) {
 }
 
 void InputClass::MouseIsUp(unsigned short Key, short X, short Y) {
-	// Key와 동일한 값을 가지고 있는 데이터의 영역을 구해옴.
 	auto Iterator = m_MouseActions.equal_range(Key);
-	// 찾았을 경우
 	if (Iterator.first != m_MouseActions.cend()) {
-		// 데이터 영역을 처음부터 끝까지 돌림
 		for (auto It = Iterator.first; It != Iterator.second; ++It) {
-			// 현재 마우스 좌표와 오버랩되는 버튼이 있는지 검사
 			if (CheckPosInRect(std::get<0>(It->second), X, Y) && std::get<0>(It->second) == std::get<0>(*m_MouseActionDataSave)) {
-				// 버튼이 눌러졌을 때를 정의한 함수를 호출함.
 				std::get<2>(*m_MouseActionDataSave)();
 				break;
 			}
 		}
 		if (m_MouseActionDataSave) {
-			// 이전에 생삭이 바뀐 버튼이 존재한다면, 색상을 원래대로 만듦
 			std::get<1>(*m_MouseActionDataSave)();
 		}
 	}
 	m_MouseActionDataSave = nullptr;
 }
 
-void InputClass::BindAxisDelegate(unsigned short Key, Function Delegate) {
-	m_AxisKeys.insert(std::make_pair(Key, std::make_tuple(false, Delegate)));
+void InputClass::BindAxisDelegate(unsigned short Key, std::function<void(float)> Delegate, float Value) {
+	m_AxisKeys.insert(std::make_pair(Key, std::make_tuple(false, Delegate, Value)));
 }
 
 void InputClass::BindActionDelegate(unsigned short Key, InputState IS, Function Delegate) {

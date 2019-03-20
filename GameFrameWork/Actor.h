@@ -1,40 +1,36 @@
 #pragma once
-#include <d3dx9.h>
-#include <vector>
-#include "EventClass.h"
+#include "TextureClass.h"
 
-enum CollisionType { CT_NONE, CT_PLAYER, CT_ENEMY, CT_PROJECTILE, CT_ALLBLOCK };
+enum ECollisionType { ECT_NONE, ECT_ALLBLOCK, ECT_PLAYER, ECT_OBSTACLE };
 
 class Actor {
 private:
 	static RECT m_WindowSize;
 
-protected:
-	class TextureClass* m_Texture;
-	CollisionType m_Collision;
-	bool m_bIsActive;
+private:
+	TextureClass* m_Image;
 
 protected:
-	virtual void OutOfScreen();
+	ECollisionType m_CollisionType;
+	D3DXVECTOR2 m_MoveSpeed;
+	bool m_bIsActivated;
 
 public:
 	Actor();
-
+	virtual ~Actor();
+	
 public:
-	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = nullptr, RECT CustomRect = { -1 });
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = L"");
 	virtual void Update(float DeltaTime);
 	virtual void Render(LPD3DXSPRITE Sprite);
-	virtual void Destroy();
-	virtual void CollisionEventByOtherActor(Actor*);
 	virtual bool IsItOutOfScreen();
+	virtual void CollisionEventBeginByOtherActor(Actor*) = 0;
 
 public:
-	void SetActivation(bool b) { m_bIsActive = b; }
-	void SetCollisionType(CollisionType CT) { m_Collision = CT; }
-
-	class TextureClass* GetTexture() const { return m_Texture; }
-	inline CollisionType GetActorCollisionType() const { return m_Collision; }
-	inline bool GetIsActivation() const { return m_bIsActive; }
-	inline RECT GetWindowSize() const { return m_WindowSize; }
-
+	void SetActorMoveSpeed(const D3DXVECTOR2& MoveSpeed) { m_MoveSpeed = MoveSpeed; }
+	D3DXVECTOR2 GetActorMoveSpeed() const { return m_MoveSpeed; }
+	void SetActorCollisionType(const ECollisionType& ECT) { m_CollisionType = ECT; }
+	ECollisionType GetActorCollisionType() const { return m_CollisionType; }
+	bool GetActorIsActivated() const { return m_bIsActivated; }
+	TextureClass* GetActorImage() const { return m_Image; }
 };

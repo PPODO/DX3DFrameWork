@@ -1,16 +1,17 @@
 #pragma once
 #include "ObjectPoolClass.h"
+#include "StageClass.h"
 #include <vector>
 #include <d3dx9.h>
 
 class ActorClass {
 private:
 	ObjectPoolClass* m_PoolManager;
-	std::vector<class StageClass*> m_Stages;
-	std::vector<std::string> m_EnemyName;
-	class PlayerClass* m_Player;
-
+	std::vector<StageClass*> m_Stages;
 	unsigned short m_CurrentStage;
+
+private:
+	class PlayerClass* m_PlayerClass;
 
 public:
 	ActorClass();

@@ -1,24 +1,21 @@
 #pragma once
-#include "Actor.h"
-#include <functional>
+#include "WidgetClass.h"
+#include <vector>
 
-class ButtonClass : public Actor {
+enum EButtonStage { EBS_Pressed, EBS_Released };
+
+class ButtonClass : public WidgetClass {
 private:
-	std::function<void()> m_Work;
-	bool m_bChangeButtonState;
-	unsigned short m_CurrentStage;
+	std::vector<LPCTSTR> m_FileSrc;
 
 private:
 	void ChangeButtonState();
 
 public:
-	ButtonClass(unsigned short);
-
-	bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, std::function<void()> Work);
-
-	void BindButtonAction();
+	ButtonClass(LPCTSTR, LPCTSTR);
+	virtual ~ButtonClass() override;
 
 public:
-	class TextureClass* GetTexture() const { return m_Texture; }
-};
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, const std::vector<LPCTSTR>& FileSrc);
 
+};

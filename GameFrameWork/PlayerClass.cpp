@@ -1,92 +1,70 @@
 #include "PlayerClass.h"
-#include "ObjectPoolClass.h"
 #include "SystemClass.h"
 #include "InputClass.h"
+#include "EventClass.h"
 
-PlayerClass::PlayerClass(class ObjectPoolClass* OP) {
-	m_Projectiles.resize(PS_COUNT);
-
-	m_Collision = CT_PLAYER;
-	m_PoolManager = OP;
-	m_XMoveSpeed = 5.f;
-	m_YMoveSpeed = 5.f;
-	m_MaxActiveProjectile = 10;
-	m_FireDelay = std::chrono::duration<float>(0.25f);
+PlayerClass::PlayerClass() {
+	m_CollisionType = ECT_PLAYER;
+	EventClass::GetInst()->BindCollisionEvent(this);
+	m_LocationIsHaveToGo = FLOAT(((GetWindowSize().right / 2) / 2) / 2);
+	m_MoveSpeed = { 5.f, 0.f };
 }
 
 PlayerClass::~PlayerClass() {
 }
 
-bool PlayerClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
-	Pawn::Init(Device, L"Player/Player.png");
-
-	m_PoolManager->GetPoolObject("DefaultProjectile", m_Projectiles[PS_DEFAULT], m_MaxActiveProjectile);
+bool PlayerClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
+	PawnClass::Init(Device, L"Player/Player.png");
 
 	return true;
 }
 
 void PlayerClass::SetupPlayerInput() {
-	InputClass* Input = SystemClass::GetInst()->GetInputManager();
+	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_UP, IE_Pressed, std::bind(&PlayerClass::Jump, this));
 
-	if (Input) {
-		Input->BindActionDelegate(VK_UP, IE_Pressed, std::bind(&PlayerClass::Jump, this));
-
-		Input->BindAxisDelegate(VK_RIGHT, std::bind(&PlayerClass::MoveRight, this, 1.f));
-		Input->BindAxisDelegate(VK_LEFT, std::bind(&PlayerClass::MoveRight, this, -1.f));
-		Input->BindAxisDelegate(VK_SPACE, std::bind(&PlayerClass::FireProjectile, this, 0.f));
-	}
+	SystemClass::GetInst()->GetInputManager()->BindAxisDelegate(VK_LEFT, std::bind(&PlayerClass::MoveRight, this, std::placeholders::_1), -1.f);
+	SystemClass::GetInst()->GetInputManager()->BindAxisDelegate(VK_RIGHT, std::bind(&PlayerClass::MoveRight, this, std::placeholders::_1), 1.f);
 }
 
 void PlayerClass::Update(float DeltaTime) {
-	Pawn::Update(DeltaTime);
+	PawnClass::Update(DeltaTime);
 
+	if (!GetStartMoveToLocation()) {
+
+	}
 }
 
 void PlayerClass::Render(LPD3DXSPRITE Sprite) {
-	Pawn::Render(Sprite);
+	PawnClass::Render(Sprite);
 
 }
 
-void PlayerClass::Destroy() {
-	Pawn::Destroy();
-}
-
-bool PlayerClass::IsItOutOfScreen() {
-	if (m_Texture->GetPosition().x - m_Texture->GetImageCenter().x < GetWindowSize().left || m_Texture->GetPosition().x + m_Texture->GetImageCenter().x > GetWindowSize().right || m_Texture->GetPosition().y - m_Texture->GetImageCenter().y < GetWindowSize().top || m_Texture->GetPosition().y + m_Texture->GetImageCenter().y > GetWindowSize().bottom) {
-		return true;
-	}
-	return false;
-}
-
-void PlayerClass::OutOfScreen() {
-
-}
-
-void PlayerClass::CollisionEventByOtherActor(Actor* OtherActor) {
-	if (OtherActor && OtherActor != this && OtherActor->GetActorCollisionType() != m_Collision) {
-		if (OtherActor->GetActorCollisionType() == CT_ENEMY) {
-
-		}
-		else if (OtherActor->GetActorCollisionType() == CT_PROJECTILE) {
-			ProjectileClass* Projectile = (ProjectileClass*)OtherActor;
-			if (Projectile && Projectile->GetOwner()->GetActorCollisionType() != m_Collision) {
-				MessageBeep(MB_OK);
+void PlayerClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
+	if (OtherActor && OtherActor != this && OtherActor->GetActorCollisionType() != m_CollisionType) {
+		if (OtherActor->GetActorCollisionType() == ECT_ALLBLOCK) {
+			if (!GetIsJumping() && !GetIsLanded()) {
+				IsLanded();
 			}
 		}
-		else if (OtherActor->GetActorCollisionType() == CT_ALLBLOCK) {
-			SetLanded(true);
-		}
 	}
-}
-
-void PlayerClass::MoveRight(float Value) {
-	m_Texture->AddXPosition(m_XMoveSpeed * Value);
 }
 
 void PlayerClass::Jump() {
-	SetJumping(true);
+	DoJump();
 }
 
-void PlayerClass::FireProjectile(float Value) {
-	SpawnProjectile(D3DXVECTOR3(1.f, 0.f, 0.f));
+void PlayerClass::MoveRight(float Value) {
+	if (!GetStartMoveToLocation() && GetActorImage()) {
+		GetActorImage()->AddXPosition(m_MoveSpeed.x * Value);
+	}
+}
+
+void PlayerClass::PlayStartMoveToLocation() {
+	D3DXVECTOR3 NewLocation, ToGoLocation(m_LocationIsHaveToGo, GetActorImage()->GetPosition().y, 0.f);
+	D3DXVec3Lerp(&NewLocation, &GetActorImage()->GetPosition(), &ToGoLocation, 0.065f);
+	GetActorImage()->SetPosition(NewLocation);
+
+	if (fabs(NewLocation.x - m_LocationIsHaveToGo) <= FLOATNearlyEqual) {
+		SetStartMoveToLocation(false);
+	}
 }

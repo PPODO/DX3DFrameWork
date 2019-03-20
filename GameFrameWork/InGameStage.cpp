@@ -1,42 +1,94 @@
 #include "InGameStage.h"
-#include "EnemyClass.h"
+#include "PlayerClass.h"
+#include "ObjectPoolClass.h"
 #include "BackGroundClass.h"
+#include "SystemClass.h"
+#include "EventClass.h"
+#include <iostream>
 
-ObjectPoolClass* InGameStage::m_PoolManager = nullptr;
-PlayerClass* InGameStage::m_Player = nullptr;
+InGameStage::InGameStage(ObjectPoolClass* OP, class PlayerClass* Player) : m_PoolManager(OP), m_Player(Player) {
+	m_FileSrc.push_back(std::make_pair(L"Stage/BackGround1.png", L"Stage/BackGround1.png"));
+	m_FileSrc.push_back(std::make_pair(L"Stage/BackGround2.png", L"Stage/BackGround2.png"));
+	m_FileSrc.push_back(std::make_pair(L"Stage/BackGround3.png", L"Stage/BackGround3.png"));
+	m_FileSrc.push_back(std::make_pair(L"Stage/Ground.png", L"Stage/Ground.png"));
 
-InGameStage::InGameStage(std::vector<StageClass*>& m_Vector, size_t MaxSpawn) : StageClass(m_Vector), m_MaxSpawn(MaxSpawn) {
-	m_Enemys.resize(EnemyStyleCount);
+	std::vector<std::pair<std::string, size_t>> ObstacleName;
+	ObstacleName.push_back(std::make_pair("Obstacle_Hole", 10));
+
+
+
+	m_PoolObjectType.insert(std::make_pair("Obstacle", ObstacleName));
 }
 
 InGameStage::~InGameStage() {
+	for (const auto& Iterator : m_BackGroundImages) {
+		if (Iterator.first) {
+			delete Iterator.first;
+		}
+		if (Iterator.second) {
+			delete Iterator.second;
+		}
+	}
+	m_BackGroundImages.clear();
+	m_PoolManager = nullptr;
+	m_Player = nullptr;
 }
 
-bool InGameStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRect) {
-	m_BackGround = new BackGroundClass;
-	if (!m_BackGround) {
-		return false;
-	}
-	m_BackGround->Init(Device, L"Stage/Stage1.png", L"Stage/Stage1.png");
-	m_BackGround->SetBackGroundMovement(true, 5.f, -1);
+bool InGameStage::Init(LPDIRECT3DDEVICE9 Device) {
+	RECT WindowSize = SystemClass::GetInst()->GetWindowSize();
+	D3DXVECTOR3 FirstImageLocation(0.f, 0.f, 0.f), SecondImageLocation(0.f, 0.f, 0.f);
 
-	m_Ground = new BackGroundClass;
-	if (!m_Ground) {
-		return false;
+	for (size_t i = 0; i < m_FileSrc.size(); i++) {
+		std::pair<BackGroundClass*, BackGroundClass*> BackGroundImage(new BackGroundClass, new BackGroundClass);
+		if ((!BackGroundImage.first || !BackGroundImage.first->Init(Device, m_FileSrc[i].first)) || (!BackGroundImage.second || !BackGroundImage.second->Init(Device, m_FileSrc[i].second))) {
+			return false;
+		}
+		switch (i) {
+		case EBGT_BACKGROUND2:
+		case EBGT_BACKGROUND3:
+			BackGroundImage.first->SetActorMoveSpeed(m_BackGroundImages[i - 1].first->GetActorMoveSpeed() / 2);
+			BackGroundImage.second->SetActorMoveSpeed(m_BackGroundImages[i - 1].second->GetActorMoveSpeed() / 2);
+		case EBGT_BACKGROUND:
+			FirstImageLocation = BackGroundImage.first->GetActorImage()->GetImageCenter();
+			SecondImageLocation = D3DXVECTOR3(FLOAT(BackGroundImage.second->GetActorImage()->GetRect().right), 0.f, 0.f) + FirstImageLocation;
+			break;
+		case EBGT_GROUND:
+			BackGroundImage.first->SetActorCollisionType(ECT_ALLBLOCK);
+			BackGroundImage.second->SetActorCollisionType(ECT_ALLBLOCK);
+			EventClass::GetInst()->BindCollisionEvent(BackGroundImage.first);
+			EventClass::GetInst()->BindCollisionEvent(BackGroundImage.second);
+			FirstImageLocation = D3DXVECTOR3(BackGroundImage.first->GetActorImage()->GetImageCenter().x, WindowSize.bottom - BackGroundImage.first->GetActorImage()->GetImageCenter().y, 0.f);
+			SecondImageLocation = D3DXVECTOR3(BackGroundImage.second->GetActorImage()->GetRect().right + FirstImageLocation.x, FirstImageLocation.y, 0.f);
+			break;
+		default:
+			throw;
+		}
+		BackGroundImage.first->GetActorImage()->SetPosition(FirstImageLocation);
+		BackGroundImage.second->GetActorImage()->SetPosition(SecondImageLocation);
+		m_BackGroundImages.push_back(BackGroundImage);
 	}
-	m_Ground->Init(Device, L"Stage/Stage1_Ground.png", L"Stage/Stage1_Ground.png");
-	m_Ground->SetBackGroundMovement(true, 2.f, -1);
-	m_Ground->SetPosition(D3DXVECTOR3(0.f, FLOAT(GetWindowSize().bottom - m_Ground->GetActorTexture(0)->GetRect().bottom), 0.f));
-	m_Ground->SetCollisionTypeAndBindEvent(CT_ALLBLOCK);
 
-	m_BackMove = new BackGroundClass;
-	if (!m_BackMove) {
-		return false;
+
+	///////////////
+	if (m_Player && EBGT_GROUND < m_BackGroundImages.size()) {
+		D3DXVECTOR3 Location = m_BackGroundImages[EBGT_GROUND].first->GetActorImage()->GetPosition() - m_BackGroundImages[EBGT_GROUND].first->GetActorImage()->GetImageCenter();
+		m_Player->GetActorImage()->SetPosition(D3DXVECTOR3(0.f, Location.y, 0.f) - m_Player->GetActorImage()->GetImageCenter());
 	}
-	m_BackMove->Init(Device, L"Stage/Stage1_Ground2.png", L"Stage/Stage1_Ground2.png");
-	m_BackMove->SetBackGroundMovement(true, 3.f, -1);
-	m_BackMove->SetPosition(D3DXVECTOR3(0.f, FLOAT(GetWindowSize().bottom - m_Ground->GetActorTexture(0)->GetRect().bottom - m_BackMove->GetActorTexture(0)->GetRect().bottom), 0.f));
+	EventClass::GetInst()->WakeUpEventThread();
 
+	if (m_PoolManager) {
+		for (auto It : m_PoolObjectType) {
+			std::vector<std::stack<Actor*>> Objects;
+			for (int i = 0; i < m_PoolManager->GetObjectTypeCountByName(It.second[(i < It.second.size() ? i : i - 1)].first); i++) {
+				std::stack<Actor*> Object;
+				m_PoolManager->GetPoolObject(It.second[i].first, Object, It.second[i].second);
+				Objects.push_back(Object);
+			}
+			m_PoolObjects.push_back(Objects);
+		}
+	}
+
+	///////////////
 	
 	return true;
 }
@@ -44,96 +96,44 @@ bool InGameStage::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, RECT CustomRec
 void InGameStage::Update(float DeltaTime) {
 	StageClass::Update(DeltaTime);
 
-	m_BackMove->Update(DeltaTime);
-	m_Ground->Update(DeltaTime);
+	for (const auto& Iterator : m_BackGroundImages) {
+		Iterator.first->Update(DeltaTime);
+		Iterator.second->Update(DeltaTime);
+	}
 
 	if (m_Player) {
 		m_Player->Update(DeltaTime);
 	}
 
-/*	for (auto It = m_ActivatedEnemy.begin(); It != m_ActivatedEnemy.end();) {
-		if ((*It) && (*It)->GetIsActivation()) {
-			(*It)->Update(DeltaTime);
-			++It;
-		}
-		else {
-			(*It)->PoolThisObject(m_Enemys[m_PoolManager->GetKeyByObjectName((*It)->GetName())], m_ActivatedEnemy, It);
-		}
-	}
-
-	PickEnemyStyleAndSpawn();*/
+	UpdatePoolObjects();
 }
 
 void InGameStage::Render(LPD3DXSPRITE Sprite) {
 	StageClass::Render(Sprite);
 
-	m_BackMove->Render(Sprite);
-	m_Ground->Render(Sprite);
+	for (const auto& Iterator : m_BackGroundImages) {
+		Iterator.first->Render(Sprite);
+		Iterator.second->Render(Sprite);
+	}
 
 	if (m_Player) {
 		m_Player->Render(Sprite);
-	}
-	
-	for (const auto& It : m_ActivatedEnemy) {
-		if (It) {
-			It->Render(Sprite);
-		}
-	}
-}
-
-void InGameStage::Destroy() {
-	StageClass::Destroy();
-
-	if (m_BackMove) {
-		m_BackMove->Destroy();
-		delete m_BackMove;
-		m_BackMove = nullptr;
-	}
-
-	if (m_Ground) {
-		m_Ground->Destroy();
-		delete m_Ground;
-		m_Ground = nullptr;
-	}
-
-	ClearEnemyObjects();
-	m_Player = nullptr;
-}
-
-void InGameStage::PickEnemyStyleAndSpawn() {
-	for (size_t i = m_ActivatedEnemy.size(); i < m_MaxSpawn; i++) {
-		auto Enemy = m_Enemys[ES_DEFAULT].top();
-		if (Enemy) {
-			Enemy->SpawnObject();
-			m_ActivatedEnemy.push_back(Enemy);
-			m_Enemys[ES_DEFAULT].pop();
-		}
 	}
 }
 
 void InGameStage::ChangeStageNotification() {
 	if (m_PoolManager) {
-		m_PoolManager->GetPoolObject("DefaultEnemy", m_Enemys[ES_DEFAULT], m_MaxSpawn);
+
 	}
 }
 
-void InGameStage::ReleaseForChangingStage() {
-	ClearEnemyObjects();
-
-}
-
-void InGameStage::ClearEnemyObjects() {
+void InGameStage::ReleaseStageNotification() {
 	if (m_PoolManager) {
-		for (auto& Iterator : m_ActivatedEnemy) {
-			m_Enemys[m_PoolManager->GetKeyByObjectName(Iterator->GetName())].push(Iterator);
-		}
-		m_ActivatedEnemy.clear();
 
-		for (auto& Iterator : m_Enemys) {
-			if (Iterator.size() > 0) {
-				m_PoolManager->ReleaseAll(Iterator.top()->GetName(), Iterator, Iterator.size());
-			}
-		}
-		m_Enemys.clear();
 	}
+}
+
+void InGameStage::UpdatePoolObjects() {
+
+
 }

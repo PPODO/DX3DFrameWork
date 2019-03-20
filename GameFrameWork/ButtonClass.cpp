@@ -1,31 +1,29 @@
 #include "ButtonClass.h"
 #include "SystemClass.h"
-#include "TextureClass.h"
 #include "InputClass.h"
+#include "StageClass.h"
 
-ButtonClass::ButtonClass(unsigned short CurrentStage) : m_bChangeButtonState(false), m_CurrentStage(CurrentStage) {
-	m_Work = 0;
+ButtonClass::ButtonClass(LPCTSTR PressedImage, LPCTSTR ReleaseImage) {
+	SetDrawImageIndex(EBS_Released);
+	m_FileSrc.push_back(PressedImage);
+	m_FileSrc.push_back(ReleaseImage);
 }
 
-bool ButtonClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc, std::function<void()> Work) {
-	Actor::Init(Device, FileSrc);
+ButtonClass::~ButtonClass() {
+}
 
-	m_Work = Work;
+bool ButtonClass::Init(LPDIRECT3DDEVICE9 Device, const std::vector<LPCTSTR>& FileSrc) {
+	WidgetClass::Init(Device, FileSrc);
+
+	TextureClass* ButtonTexture = GetTextureByIndex(EBS_Pressed);
+	if (!ButtonTexture || ButtonTexture->m_Texture) {
+		return false;
+	}
+	SystemClass::GetInst()->GetInputManager()->BindMouseActionDelegate(EST_MAIN, ButtonTexture->GetRect(), std::bind(&ButtonClass::ChangeButtonState, this), []() {});
+
 	return true;
 }
 
 void ButtonClass::ChangeButtonState() {
-	m_bChangeButtonState = !m_bChangeButtonState;
-	if (m_bChangeButtonState) {
-		m_Texture->m_Color = D3DXCOLOR(255, 0, 255, 1);
-	}
-	else {
-		m_Texture->m_Color = 0xffffffff;
-	}
-}
-
-void ButtonClass::BindButtonAction() {
-	D3DXVECTOR3 ButtonPosition = m_Texture->GetPosition() - m_Texture->GetImageCenter();
-	RECT ButtonRect = RECT{ (LONG)ButtonPosition.x - m_Texture->m_ImageRect.left, (LONG)ButtonPosition.y - m_Texture->m_ImageRect.top, (LONG)ButtonPosition.x + m_Texture->m_ImageRect.right, (LONG)ButtonPosition.y + m_Texture->m_ImageRect.bottom };
-	SystemClass::GetInst()->GetInputManager()->BindMouseActionDelegate(m_CurrentStage, ButtonRect, std::bind(&ButtonClass::ChangeButtonState, this), m_Work);
+	SetDrawImageIndex(!GetDrawImageIndex());
 }

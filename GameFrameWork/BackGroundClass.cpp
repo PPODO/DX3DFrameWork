@@ -1,43 +1,39 @@
 #include "BackGroundClass.h"
+#include "EventClass.h"
 
-BackGroundClass::BackGroundClass() : m_ImageMoveSpeed(0.f), m_bIsMovingScreen(false), m_MoveDirection(0) {
-	m_Collision = CT_NONE;
-	m_ImagePos = D3DXVECTOR3(0.f, 0.f, 0.f);
+BackGroundClass::BackGroundClass() {
+	m_MoveSpeed = { 5.f, 0.f };
+	m_bIsActivated = true;
+}
+
+BackGroundClass::~BackGroundClass() {
+}
+
+bool BackGroundClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
+	Actor::Init(Device, FileSrc);
+
+	return true;
 }
 
 void BackGroundClass::Update(float DeltaTime) {
-	for (const auto& It : m_BackGroundImages) {
-		if (It) {
-			if (m_bIsMovingScreen) {
-				BackgroundImageMoveProcessing(It->GetTexture());
-			}
-			It->Update(DeltaTime);
-		}
-	}
+	Actor::Update(DeltaTime);
+
+	BackGroundMovementProcessing();
 }
 
 void BackGroundClass::Render(LPD3DXSPRITE Sprite) {
-	for (const auto& It : m_BackGroundImages) {
-		if (It) {
-			It->Render(Sprite);
-		}
+	Actor::Render(Sprite);
+}
+
+void BackGroundClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
+	if (OtherActor && OtherActor != this && OtherActor->GetActorCollisionType() != m_CollisionType) {
+
 	}
 }
 
-void BackGroundClass::Destroy() {
-	for (auto& It : m_BackGroundImages) {
-		if (It) {
-			It->Destroy();
-			delete It;
-		}
+void BackGroundClass::BackGroundMovementProcessing() {
+	if (GetActorImage()->GetPosition().x < GetActorImage()->GetImageCenter().x * -1) {
+		GetActorImage()->SetPosition(D3DXVECTOR3((GetActorImage()->GetRect().right - m_MoveSpeed.x) + GetActorImage()->GetImageCenter().x, GetActorImage()->GetPosition().y, 0.f));
 	}
-}
-
-void BackGroundClass::SetCollisionTypeAndBindEvent(CollisionType CT) {
-	for (auto& It : m_BackGroundImages) {
-		if (It) {
-			It->SetCollisionType(CT);
-			EventClass::GetInst()->BindCollisionEvent(It);
-		}
-	}
+	GetActorImage()->AddXPosition(m_MoveSpeed.x * -1);
 }
