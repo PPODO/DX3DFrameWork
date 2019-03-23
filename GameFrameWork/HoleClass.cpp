@@ -1,6 +1,8 @@
 #include "HoleClass.h"
 
 HoleClass::HoleClass() {
+	m_MoveSpeed = { 5.f, 0.f };
+	m_Name = "Obstacle_Hole";
 }
 
 HoleClass::~HoleClass() {
@@ -14,7 +16,7 @@ bool HoleClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 
 void HoleClass::Update(float DeltaTime) {
 	ObstacleClass::Update(DeltaTime);
-
+	
 }
 
 void HoleClass::Render(LPD3DXSPRITE Sprite) {
@@ -27,5 +29,5 @@ void HoleClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
 }
 
 void HoleClass::ObstacleMovementProcessing() {
-
+	GetActorImage()->AddXPosition(m_MoveSpeed.x * -1);
 }

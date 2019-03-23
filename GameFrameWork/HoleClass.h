@@ -7,6 +7,7 @@ private:
 
 protected:
 	virtual void ObstacleMovementProcessing() override;
+	inline virtual void TimerNotification() override;
 
 public:
 	HoleClass();
@@ -19,3 +20,7 @@ public:
 	virtual void CollisionEventBeginByOtherActor(Actor*) override;
 
 };
+
+inline void HoleClass::TimerNotification() {
+	SetActorIsActivated(true);
+}

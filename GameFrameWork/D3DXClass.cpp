@@ -14,13 +14,13 @@ D3DXClass::~D3DXClass() {
 	}
 }
 
-bool D3DXClass::Init(int Width, int Height, HWND hWnd) {
+bool D3DXClass::Init(int Width, int Height, HWND hWnd, bool FullScreen) {
 	if (!(m_Direct9 = Direct3DCreate9(D3D_SDK_VERSION))) {
 		return false;
 	}
 	D3DPRESENT_PARAMETERS Params;
 	memset(&Params, 0, sizeof(D3DPRESENT_PARAMETERS));
-	Params.Windowed = 1;
+	Params.Windowed = !FullScreen;
 	Params.BackBufferCount = 1;
 	Params.BackBufferWidth = Width;
 	Params.BackBufferHeight = Height;
@@ -28,7 +28,7 @@ bool D3DXClass::Init(int Width, int Height, HWND hWnd) {
 	Params.EnableAutoDepthStencil = true;
 	Params.AutoDepthStencilFormat = D3DFMT_D16;
 	Params.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	if (0) {
+	if (FullScreen) {
 		Params.BackBufferFormat = D3DFMT_X8R8G8B8;
 		Params.hDeviceWindow = hWnd;
 	}

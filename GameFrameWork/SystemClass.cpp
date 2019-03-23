@@ -8,7 +8,7 @@
 
 SystemClass* SystemClass::m_Application;
 
-SystemClass::SystemClass() : DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true), m_Input(nullptr) {
+SystemClass::SystemClass() : m_bIsFullScreen(false), DeltaTime(0.f), m_ActorManager(nullptr), m_D3DX(nullptr), m_hInstance(nullptr), m_hWnd(nullptr), WaitForRender(true), m_Input(nullptr) {
 	MessageQueueClass::GetInst();
 	GraphicClass::GetInst();
 	EventClass::GetInst();
@@ -37,27 +37,12 @@ bool SystemClass::InitWindow(int& Width, int& Height) {
 	WndClass.style = CS_VREDRAW | CS_HREDRAW;
 	RegisterClassEx(&WndClass);
 
-	Width = GetSystemMetrics(SM_CXSCREEN);
-	Height = GetSystemMetrics(SM_CYSCREEN);
-
-	if (0) {
-		DEVMODE DevMode;
-		ZeroMemory(&DevMode, sizeof(DEVMODE));
-		DevMode.dmSize = sizeof(DevMode);
-		DevMode.dmPelsWidth = Width;
-		DevMode.dmPelsHeight = Height;
-		DevMode.dmBitsPerPel = 32;
-		DevMode.dmFields = DM_BITSPERPEL | DM_PELSHEIGHT | DM_PELSWIDTH;
-		ChangeDisplaySettings(&DevMode, CDS_FULLSCREEN);
-	}
-	else {
-		Width = 800;
-		Height = 600;
-	}
+	Width = 1920;
+	Height = 1080;
 
 	RECT Size = { 0, 0, Width, Height };
 	AdjustWindowRectEx(&Size, WS_OVERLAPPEDWINDOW, false, WS_EX_APPWINDOW);
-	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Size.right - Size.left, Size.bottom - Size.top, nullptr, (HMENU)nullptr, m_hInstance, nullptr);
+	m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_ApplicationName, m_ApplicationName, (!m_bIsFullScreen ? WS_OVERLAPPEDWINDOW : WS_EX_TOPMOST | WS_POPUP), CW_USEDEFAULT, CW_USEDEFAULT, Size.right - Size.left, Size.bottom - Size.top, nullptr, (HMENU)nullptr, m_hInstance, nullptr);
 	ShowWindow(m_hWnd, SW_SHOW);
 	return true;
 }
@@ -70,7 +55,7 @@ bool SystemClass::Init() {
 	GetClientRect(m_hWnd, &m_WindowSize);
 
 	m_D3DX = new D3DXClass;
-	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd)) {
+	if (!m_D3DX || !m_D3DX->Init(Width, Height, m_hWnd, m_bIsFullScreen)) {
 		return false;
 	}
 	
@@ -92,7 +77,7 @@ bool SystemClass::Init() {
 bool SystemClass::Frame(float DeltaTime) {
 	WaitForRender = true;
 	m_ActorManager->Frame(DeltaTime);
-	if (m_ActorManager->GetCurrentStage() >= 0) {
+	if (m_ActorManager->GetCurrentStage() > 0) {
 		m_Input->Frame();
 	}
 	
@@ -121,9 +106,6 @@ void SystemClass::Run() {
 }
 
 void SystemClass::ShutdownWindow() {
-	if (0) {
-		ChangeDisplaySettings(nullptr, 0);
-	}
 	DestroyWindow(m_hWnd);
 	m_hWnd = nullptr;
 

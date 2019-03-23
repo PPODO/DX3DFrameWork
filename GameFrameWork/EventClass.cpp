@@ -12,7 +12,7 @@ EventClass::EventClass() : m_bIsStop(false) {
 			m_Condition.wait(Lock);
 		}
 		while (!m_bIsStop) {
-			if (SystemClass::GetInst()->GetActorManager() && SystemClass::GetInst()->GetActorManager()->GetCurrentStage() >= 0) {
+			if (SystemClass::GetInst()->GetActorManager() && SystemClass::GetInst()->GetActorManager()->GetCurrentStage() > 0) {
 				Frame();
 			}
 		}

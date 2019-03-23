@@ -9,6 +9,7 @@ private:
 	HINSTANCE m_hInstance;
 	LPCTSTR m_ApplicationName;
 	RECT m_WindowSize;
+	bool m_bIsFullScreen;
 
 	class D3DXClass* m_D3DX;
 	class ActorClass* m_ActorManager;

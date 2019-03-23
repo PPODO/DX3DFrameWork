@@ -3,10 +3,10 @@
 
 GraphicClass* GraphicClass::m_Application;
 
-GraphicClass::GraphicClass() {
+GraphicClass::GraphicClass() : m_bIsStop(false) {
 	for (int i = 0; i < MaxRenderedThread; i++) {
 		m_RenderThread.push_back(std::thread([&]() {
-			while (true) {
+			while (!m_bIsStop) {
 				try {
 					std::unique_lock<std::mutex> Lock(m_Lock);
 					if (!MessageQueueClass::GetInst()->IsEmpty()) {
@@ -23,7 +23,9 @@ GraphicClass::GraphicClass() {
 }
 
 GraphicClass::~GraphicClass() {
+	std::unique_lock<std::mutex> Lock(m_Lock);
 	for (int i = 0; i < MaxRenderedThread; i++) {
+		m_bIsStop = true;
 		m_RenderThread[i].join();
 	}
 }

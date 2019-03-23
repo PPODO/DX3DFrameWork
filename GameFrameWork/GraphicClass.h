@@ -7,7 +7,7 @@
 #include "Singleton.h"
 #include "MessageQueueClass.h"
 
-const int MaxRenderedThread = 2;
+const int MaxRenderedThread = 1;
 
 class GraphicClass : public Singleton<GraphicClass> {
 private:
@@ -15,6 +15,7 @@ private:
 	LPD3DXSPRITE m_Sprite;
 	std::mutex m_Lock;
 	std::vector<std::thread> m_RenderThread;
+	bool m_bIsStop;
 
 private:
 	void Excute(std::tuple<MessageState, std::function<void()>>&);

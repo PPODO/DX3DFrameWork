@@ -63,18 +63,22 @@ inline void ObjectPoolClass::CreateObject(std::string ObjectName, size_t ObjectC
 template<typename T>
 inline void ObjectPoolClass::GetPoolObject(std::string ObjectName, std::stack<T*>& Actors, size_t ObjectCount) {
 	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
-	for (size_t i = 0; i < ObjectCount; i++) {
-		Actors.push((T*)It->second.top());
-		It->second.pop();
+	if (It != m_Objects.end()) {
+		for (size_t i = 0; i < ObjectCount; i++) {
+			Actors.push((T*)It->second.top());
+			It->second.pop();
+		}
 	}
 }
 
 template<typename T>
 void ObjectPoolClass::ReleaseAll(std::string ObjectName, std::stack<T*>& Object, size_t ObjectSize) {
 	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<class Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
-	for (size_t i = 0; i < ObjectSize; i++) {
-		It->second.push(Object.top());
-		Object.pop();
+	if (It != m_Objects.end()) {
+		for (size_t i = 0; i < ObjectSize; i++) {
+			It->second.push(Object.top());
+			Object.pop();
+		}
 	}
 }
 
@@ -87,7 +91,7 @@ inline void ObjectPoolClass::GetTypeNameByObjectName(const std::string& ObjectNa
 		}
 	}
 	if (Distance > 0) {
-		auto It = std::find_if(m_ObjectTypeNames.begin(), m_ObjectTypeNames.end(), [&](const std::pair<std::string, size_t>& Param) {if (Param.first.compare(ObjectName.substr(0, Distance))) { return true; } return false; });
+		auto It = std::find_if(m_ObjectTypeNames.begin(), m_ObjectTypeNames.end(), [&](const std::pair<std::string, size_t>& Param) {if (Param.first.compare(ObjectName.substr(0, Distance)) == 0) { return true; } return false; });
 		if (It != m_ObjectTypeNames.cend()) {
 			It->second++;
 		}

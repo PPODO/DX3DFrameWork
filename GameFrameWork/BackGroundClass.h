@@ -3,8 +3,11 @@
 
 class BackGroundClass : public Actor {
 private:
+	class BackGroundClass* m_OtherActor;
+	D3DXVECTOR2 m_AdditionalSpeed, m_DefaultMoveSpeed;
 
 private:
+	void CalculateMoveSpeed();
 	void BackGroundMovementProcessing();
 
 public:
@@ -16,5 +19,9 @@ public:
 	virtual void Update(float DeltaTime);
 	virtual void Render(LPD3DXSPRITE Sprite);
 	virtual void CollisionEventBeginByOtherActor(Actor*) override;
+
+public:
+	void SetOtherBackGroundActor(BackGroundClass* OtherBG) { m_OtherActor = OtherBG; }
+	void SetAdditionalSpeed(const D3DXVECTOR2& Speed) { m_AdditionalSpeed = Speed * sqrt(pow(m_DefaultMoveSpeed.x, 2) + pow(m_DefaultMoveSpeed.y, 2)); }
 
 };

@@ -3,7 +3,7 @@
 
 RECT Actor::m_WindowSize;
 
-Actor::Actor() : m_CollisionType(ECT_NONE), m_bIsActivated(false) {
+Actor::Actor() : m_CollisionType(ECT_NONE), m_bIsActivated(false), m_bIsTimerLoop(false), m_bIsUseTimer(false) {
 	m_WindowSize = SystemClass::GetInst()->GetWindowSize();
 }
 
@@ -24,10 +24,16 @@ bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 }
 
 void Actor::Update(float DeltaTime) {
+	if (m_bIsUseTimer) {
+		ProcessingTimer();
+	}
 	if (!m_bIsActivated) {
 		return;
 	}
 
+	if (m_Image) {
+//		m_Image->AddYPosition();
+	}
 }
 
 void Actor::Render(LPD3DXSPRITE Sprite) {
@@ -45,4 +51,8 @@ bool Actor::IsItOutOfScreen() {
 		return true;
 	}
 	return false;
+}
+
+void Actor::SpawnActor(const D3DXVECTOR3& Location) {
+
 }

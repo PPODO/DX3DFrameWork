@@ -1,7 +1,8 @@
 #include "StageClass.h"
+#include "SystemClass.h"
 
 StageClass::StageClass() {
-
+	m_WindowSize = SystemClass::GetInst()->GetWindowSize();
 }
 
 StageClass::~StageClass() {

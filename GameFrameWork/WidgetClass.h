@@ -17,6 +17,7 @@ public:
 
 public:
 	void SetDrawImageIndex(size_t Index) { m_DrawImageIndex = Index; }
+	void SetWidgetLocation(const D3DXVECTOR3& Pos) { for (auto& It : m_Images) { if (It) { It->SetPosition(Pos); } } };
 	size_t GetDrawImageIndex() const { return m_DrawImageIndex; }
 	TextureClass* GetTextureByIndex(size_t Index) { if (Index < m_Images.size()) { return m_Images[Index]; } return nullptr; };
 

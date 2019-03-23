@@ -13,7 +13,7 @@ public:
 	D3DXClass();
 	~D3DXClass();
 
-	bool Init(int, int, HWND);
+	bool Init(int, int, HWND, bool);
 
 public:
 	inline LPDIRECT3DDEVICE9 GetDevice() const { return m_Device; }

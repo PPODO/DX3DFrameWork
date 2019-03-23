@@ -2,6 +2,7 @@
 #include <functional>
 #include <tuple>
 #include <map>
+#include <string>
 #include <utility>
 #include <Windows.h>
 
@@ -16,8 +17,9 @@ typedef std::function<void()> Function;
 
 class InputClass {
 private:
-	std::map<unsigned short, std::tuple<bool, std::function<void(float)>, float>> m_AxisKeys;
-	std::multimap<unsigned short, std::tuple<InputState, Function>> m_ActionKeys;
+	std::map<unsigned short, std::tuple<std::string, std::function<void(float)>, float>> m_AxisKeys;
+	std::multimap<unsigned short, std::pair<InputState, Function>> m_ActionKeys;
+
 	std::multimap<unsigned short, std::tuple<RECT, Function, Function>> m_MouseActions;
 	std::tuple<RECT, Function, Function>* m_MouseActionDataSave;
 
@@ -35,7 +37,7 @@ public:
 	void MouseIsDown(unsigned short, short, short);
 	void MouseIsUp(unsigned short, short, short);
 
-	void BindAxisDelegate(unsigned short, std::function<void(float)>, float);
+	void BindAxisDelegate(unsigned short, const std::string& Name, const std::function<void(float)>&, float);
 	void BindActionDelegate(unsigned short, InputState, Function);
 	void BindMouseActionDelegate(unsigned short, RECT, Function, Function);
 
@@ -53,9 +55,6 @@ inline void InputClass::CheckBindKeys(unsigned short Key, InputState IS, bool bP
 				std::get<1>(It->second)();
 			}
 		}
-	}
-	if (m_AxisKeys.find(Key) != m_AxisKeys.cend()) {
-		std::get<0>(m_AxisKeys.find(Key)->second) = bPressed;
 	}
 }
 

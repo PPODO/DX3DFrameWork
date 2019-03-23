@@ -1,11 +1,11 @@
 #pragma once
 #include <d3dx9.h>
 
-enum EStageType { EST_MAIN };
+enum EStageType { EST_MENU, EST_STAGE1, EST_STAGE2 };
 
 class StageClass {
 private:
-
+	RECT m_WindowSize;
 
 public:
 	StageClass();
@@ -17,5 +17,8 @@ public:
 	virtual void Render(LPD3DXSPRITE Sprite);
 	virtual void ChangeStageNotification() = 0;
 	virtual void ReleaseStageNotification() = 0;
+
+public:
+	RECT GetWindowSize() const { return m_WindowSize; }
 
 };
