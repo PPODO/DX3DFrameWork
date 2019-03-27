@@ -3,9 +3,10 @@
 #include <vector>
 
 class FirstInGameStage : public InGameStage {
-	enum EBackGroundType { EBGT_BACKGROUND, EBGT_GROUND };
+	enum EBackGroundType { EBGT_BACKGROUND, EBGT_BACKGROUND2, EBGT_GROUND };
 private:
-
+	D3DXVECTOR3 m_EnemySpawnLocation;
+	D3DXVECTOR3 m_ObstacleSpawnLocation;
 
 protected:
 	virtual void PickUpObject() override;

@@ -38,9 +38,7 @@ void EventClass::Frame() {
 				if (SecondActor) {
 					if (SecondActor->GetActorCollisionType() != ECT_NONE && CheckIt != Iterator) {
 						if (SecondActor->GetActorIsActivated()) {
-							if (AActor->GetActorCollisionType() != SecondActor->GetActorCollisionType()) {
-								CheckIsColliding(AActor, SecondActor);
-							}
+							CheckIsColliding(AActor, SecondActor);
 						}
 					}
 				}

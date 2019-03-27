@@ -37,8 +37,8 @@ bool SystemClass::InitWindow(int& Width, int& Height) {
 	WndClass.style = CS_VREDRAW | CS_HREDRAW;
 	RegisterClassEx(&WndClass);
 
-	Width = 1920;
-	Height = 1080;
+	Width = 1600;
+	Height = 900;
 
 	RECT Size = { 0, 0, Width, Height };
 	AdjustWindowRectEx(&Size, WS_OVERLAPPEDWINDOW, false, WS_EX_APPWINDOW);

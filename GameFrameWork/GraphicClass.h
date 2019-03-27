@@ -20,6 +20,7 @@ private:
 private:
 	void Excute(std::tuple<MessageState, std::function<void()>>&);
 	void Shutdown();
+	void StopThread();
 
 public:
 	GraphicClass();

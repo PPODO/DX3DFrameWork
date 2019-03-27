@@ -36,11 +36,12 @@ public:
 	
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = L"");
-	virtual void Update(float DeltaTime);
+	virtual void Update(float DeltaTime, float ActorHeight);
 	virtual void Render(LPD3DXSPRITE Sprite);
 	virtual bool IsItOutOfScreen();
 	virtual void SpawnActor(const D3DXVECTOR3& = { 0.f,0.f,0.f });
 	virtual void CollisionEventBeginByOtherActor(Actor*) = 0;
+	virtual void ClearObject();
 
 public:
 	void SetTimer(float DelayTime, bool IsLoop = false) { m_bIsUseTimer = true; m_bIsTimerLoop = IsLoop; m_DelayTime = std::chrono::duration<float>(DelayTime); m_LastTime = std::chrono::system_clock::now(); };

@@ -15,10 +15,11 @@ public:
 	virtual ~BackGroundClass() override;
 
 public:
-	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc);
-	virtual void Update(float DeltaTime);
-	virtual void Render(LPD3DXSPRITE Sprite);
+	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) override;
+	virtual void Update(float DeltaTime, float ActorHeight) override;
+	virtual void Render(LPD3DXSPRITE Sprite) override;
 	virtual void CollisionEventBeginByOtherActor(Actor*) override;
+	virtual void ClearObject() override;
 
 public:
 	void SetOtherBackGroundActor(BackGroundClass* OtherBG) { m_OtherActor = OtherBG; }

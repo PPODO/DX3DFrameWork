@@ -8,6 +8,7 @@ Actor::Actor() : m_CollisionType(ECT_NONE), m_bIsActivated(false), m_bIsTimerLoo
 }
 
 Actor::~Actor() {
+	ClearObject();
 	if (m_Image) {
 		delete m_Image;
 		m_Image = nullptr;
@@ -21,9 +22,9 @@ bool Actor::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	}
 
 	return true;
-}
+} 
 
-void Actor::Update(float DeltaTime) {
+void Actor::Update(float DeltaTime, float ActorHeight) {
 	if (m_bIsUseTimer) {
 		ProcessingTimer();
 	}
@@ -32,7 +33,7 @@ void Actor::Update(float DeltaTime) {
 	}
 
 	if (m_Image) {
-//		m_Image->AddYPosition();
+		m_Image->AddYPosition(ActorHeight);
 	}
 }
 
@@ -54,5 +55,9 @@ bool Actor::IsItOutOfScreen() {
 }
 
 void Actor::SpawnActor(const D3DXVECTOR3& Location) {
+	
+}
 
+void Actor::ClearObject() {
+	
 }

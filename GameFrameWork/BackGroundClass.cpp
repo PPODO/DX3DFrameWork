@@ -16,8 +16,8 @@ bool BackGroundClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	return true;
 }
 
-void BackGroundClass::Update(float DeltaTime) {
-	Actor::Update(DeltaTime);
+void BackGroundClass::Update(float DeltaTime, float ActorHeight) {
+	Actor::Update(DeltaTime, ActorHeight);
 
 	CalculateMoveSpeed();
 	BackGroundMovementProcessing();
@@ -31,6 +31,9 @@ void BackGroundClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
 	if (OtherActor && OtherActor != this && OtherActor->GetActorCollisionType() != m_CollisionType) {
 
 	}
+}
+
+void BackGroundClass::ClearObject() {
 }
 
 void BackGroundClass::CalculateMoveSpeed() {

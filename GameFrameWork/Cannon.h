@@ -1,15 +1,16 @@
 #pragma once
 #include "Weapon.h"
 
-class MachineGun : public Weapon {
+class Cannon : public Weapon {
 private:
 
-private:
+
+protected:
 	virtual void CalculateWeaponAngle() override;
 
 public:
-	MachineGun();
-	virtual ~MachineGun() override;
+	Cannon();
+	virtual ~Cannon() override;
 
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc = L"") override;

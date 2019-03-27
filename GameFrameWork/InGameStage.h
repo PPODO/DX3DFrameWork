@@ -24,8 +24,13 @@ protected:
 	std::vector<std::pair<LPCTSTR, LPCTSTR>> m_FileSrc;
 	std::vector<std::pair<class BackGroundClass*, class BackGroundClass*>> m_BackGroundImages;
 
+	std::vector<std::vector<std::stack<class Actor*>>> m_PoolObjects;
+	std::vector<std::vector<std::pair<size_t, class Actor*>>> m_ActivatedObjects;
+	std::vector<std::tuple<std::chrono::system_clock::time_point, std::chrono::duration<float>, float>> m_ObjectSpawnDelayTime;
+	std::vector<size_t> m_ObjectMaxSpawnCount;
+
 private:
-	void UpdatePoolObjects(const float& DeltaTime);
+	void UpdatePoolObjects(const float& DeltaTime, float ActorHeight);
 	void RenderActivatedPoolObjects(const LPD3DXSPRITE& Sprite);
 	void ReleasePoolObjects();
 

@@ -14,8 +14,8 @@ bool HoleClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	return true;
 }
 
-void HoleClass::Update(float DeltaTime) {
-	ObstacleClass::Update(DeltaTime);
+void HoleClass::Update(float DeltaTime, float ActorHeight) {
+	ObstacleClass::Update(DeltaTime, ActorHeight);
 	
 }
 
@@ -25,7 +25,14 @@ void HoleClass::Render(LPD3DXSPRITE Sprite) {
 }
 
 void HoleClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
+	if (OtherActor && OtherActor != this && OtherActor->GetActorCollisionType() != m_CollisionType) {
+		if (OtherActor->GetActorCollisionType() == ECT_PROJECTILE) {
 
+		}
+		else if (OtherActor->GetActorCollisionType() == ECT_PLAYER) {
+			SetActorIsActivated(false);
+		}
+	}
 }
 
 void HoleClass::ObstacleMovementProcessing() {

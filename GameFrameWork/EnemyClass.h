@@ -7,11 +7,7 @@ enum EEnemyType { EET_DEFAULT, EET_COUNT };
 
 class EnemyClass : public PawnClass {
 private:
-	std::vector<std::stack<class ProjectileClass*>>* m_ProjectileObjects;
-	std::vector<std::pair<class ProjectileClass*, size_t>> m_ActivatedProjectile;
-
-protected:
-	EProjectileType m_ProjectileType;
+	class ObjectPoolClass* m_PoolManager;
 
 private:
 	virtual void SetupPlayerInput() {};
@@ -20,8 +16,7 @@ private:
 
 protected:
 	inline virtual void TimerNotification() override;
-	virtual ProjectileClass* FireProjectile(const D3DXVECTOR3& Offset = { 0.f, 0.f, 0.f }) override;
-	virtual void CalculateProjectile(const float& DeltaTime) override;
+	inline class ObjectPoolClass* GetPoolManager() const { return m_PoolManager; }
 
 public:
 	EnemyClass();
@@ -29,14 +24,15 @@ public:
 
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) override;
-	virtual void Update(float DeltaTime) override;
+	virtual void Update(float DeltaTime, float ActorHeight) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
+	virtual bool IsItOutOfScreen() override;
 	virtual void CollisionEventBeginByOtherActor(Actor*) override;
 	virtual void SpawnActor(const D3DXVECTOR3& = { 0.f,0.f,0.f }) override;
-	
+	virtual void ClearObject() override;
+
 public:
-	void SetProjectileObject(std::vector<std::stack<class ProjectileClass*>>& List);
-	void ReleaseProjectileObject();
+	inline void SetPoolManager(class ObjectPoolClass* OP) { m_PoolManager = OP; }
 
 };
 

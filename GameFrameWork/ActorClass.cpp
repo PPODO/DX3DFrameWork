@@ -5,6 +5,7 @@
 #include "DefaultEnemy.h"
 #include "HoleClass.h"
 #include "DefaultProjectile.h"
+#include "BombProjectile.h"
 
 ActorClass::ActorClass() : m_CurrentStage(0), m_PlayerClass(nullptr) {
 }
@@ -33,7 +34,8 @@ bool ActorClass::Init(LPDIRECT3DDEVICE9 Device) {
 
 	m_PoolManager->CreateObject<HoleClass>("Obstacle_Hole", 20, EOT_HOLE);
 	m_PoolManager->CreateObject<DefaultEnemy>("Enemy_Default", 10, EET_DEFAULT);
-	m_PoolManager->CreateObject<DefaultProjectile>("Projectile_Default", 200, EPT_DEFAULT);
+	m_PoolManager->CreateObject<DefaultProjectile>("Projectile_Default", 50, EPT_DEFAULT);
+	m_PoolManager->CreateObject<BombProjectile>("Projectile_Bomb", 100, EPT_BOMB);
 
 	m_PlayerClass = new PlayerClass(m_PoolManager);
 	if (!m_PlayerClass || !m_PlayerClass->Init(Device)) {

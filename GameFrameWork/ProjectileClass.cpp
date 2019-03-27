@@ -16,8 +16,8 @@ bool ProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	return true;
 }
 
-void ProjectileClass::Update(float DeltaTime) {
-	Actor::Update(DeltaTime);
+void ProjectileClass::Update(float DeltaTime, float ActorHeight) {
+	Actor::Update(DeltaTime, ActorHeight);
 
 	if (GetActorIsActivated()) {
 		ProjectileMovementProcessing(DeltaTime);
@@ -39,4 +39,8 @@ void ProjectileClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
 void ProjectileClass::SpawnActor(const D3DXVECTOR3& Location) {
 	GetActorImage()->SetPosition(Location);
 	SetActorIsActivated(true);
+}
+
+void ProjectileClass::ClearObject() {
+	
 }

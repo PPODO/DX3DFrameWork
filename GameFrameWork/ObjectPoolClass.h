@@ -64,9 +64,11 @@ template<typename T>
 inline void ObjectPoolClass::GetPoolObject(std::string ObjectName, std::stack<T*>& Actors, size_t ObjectCount) {
 	auto It = std::find_if(m_Objects.begin(), m_Objects.end(), [&ObjectName](const std::pair<std::string, std::stack<Actor*>>& Iterator) -> bool { if (Iterator.first.compare(ObjectName) == 0) { return true; } return false; });
 	if (It != m_Objects.end()) {
-		for (size_t i = 0; i < ObjectCount; i++) {
-			Actors.push((T*)It->second.top());
-			It->second.pop();
+		if (It->second.top() > 0) {
+			for (size_t i = 0; i < ObjectCount; i++) {
+				Actors.push((T*)It->second.top());
+				It->second.pop();
+			}
 		}
 	}
 }

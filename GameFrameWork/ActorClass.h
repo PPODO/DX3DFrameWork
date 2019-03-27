@@ -24,8 +24,5 @@ public:
 
 public:
 	inline unsigned short GetCurrentStage() const { return m_CurrentStage; }
-	inline short GetKeyByObjectName(const std::string& Name) { return m_PoolManager->GetKeyByObjectName(Name); }
-	inline ObjectPoolClass* GetPoolManager() const { return m_PoolManager; }
-
 	void SetCurrentStage(unsigned short Value);
 };

@@ -6,5 +6,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		SystemClass::GetInst()->Run();
 	}
 	SystemClass::GetInst()->Shutdown();
+
 	return 0;
 }

@@ -70,5 +70,15 @@ void GraphicClass::Excute(std::tuple<MessageState, std::function<void()>>& Task)
 void GraphicClass::Shutdown() {
 	m_Device = nullptr;
 	m_Sprite = nullptr;
+	StopThread();
+
 	DestroySingleton();
+}
+
+void GraphicClass::StopThread() {
+	std::unique_lock<std::mutex> Lock(m_Lock);
+	for (int i = 0; i < MaxRenderedThread; i++) {
+		m_bIsStop = true;
+		m_RenderThread[i].join();
+	}
 }

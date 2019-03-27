@@ -11,10 +11,18 @@ private:
 
 private: 
 	class ObjectPoolClass* m_PoolManager;
+	TextureClass* m_CopyImage;
+
+protected:
+	virtual void SpawnExplosionEffect();
 
 private:
 	bool m_bIsFire;
 	std::chrono::system_clock::time_point m_LastFireTime;
+
+protected:
+	std::vector<std::stack<ProjectileClass*>> m_ProjectileObjects;
+	std::vector<ProjectileClass*> m_ActivatedProjectileObjects;
 
 protected:
 	EProjectileType m_ProjectileType;
@@ -24,23 +32,30 @@ protected:
 protected:
 	inline bool CanFire();
 
+protected:
+	class ParticleClass* m_ExplosionEffect;
+
 private:
-	float m_CurrentHeight, m_MaxHeight, m_SaveYLocation;
+	float m_MaxHeight;
 	bool m_bUseGravity, m_bLanded, m_bIsJumping, m_bStartMoveToLocation;
+
+protected:
+	float m_SaveYLocation, m_CurrentHeight;
 
 protected:
 	float m_LocationIsHaveToGo;
 
 protected:
 	inline void DoJump();
+	inline void ClearJump();
 	inline void CalculateJump();
-	inline void IsLanded() { m_bLanded = true; GetActorImage()->SetPosition(D3DXVECTOR3(GetActorImage()->GetPosition().x, m_SaveYLocation, 0.f)); };
+	inline void IsLanded() { m_bLanded = true; GetActorImage()->SetPosition(D3DXVECTOR3(GetActorImage()->GetPosition().x, m_SaveYLocation, 0.f)); }
 
 protected:
 	virtual void SetupPlayerInput() = 0;
 	virtual void PlayStartMoveToLocation(float Value = 0.05f) = 0;
-	virtual ProjectileClass* FireProjectile(const D3DXVECTOR3& Offset = { 0.f, 0.f, 0.f }) = 0;
-	virtual void CalculateProjectile(const float& DeltaTime) = 0;
+	ProjectileClass* FireProjectile(const D3DXVECTOR3& Offset = { 0.f, 0.f, 0.f });
+	void CalculateProjectile(const float& DeltaTime, float ActorHeight);
 
 public:
 	PawnClass();
@@ -48,7 +63,7 @@ public:
 
 public:
 	virtual bool Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) override;
-	virtual void Update(float DeltaTime) override;
+	virtual void Update(float DeltaTime, float ActorHeight) override;
 	virtual void Render(LPD3DXSPRITE Sprite) override;
 
 public:
@@ -65,6 +80,7 @@ public:
 	inline bool GetUseGravity() const { return m_bUseGravity; }
 	inline bool GetStartMoveToLocation() const { return m_bStartMoveToLocation; }
 	inline float GetCurrentHeight() const { return m_CurrentHeight; }
+	inline float GetMaxHeight() const { return m_MaxHeight; }
 	inline class ObjectPoolClass* GetPoolManager() const { return m_PoolManager; }
 
 };
@@ -80,11 +96,12 @@ inline void PawnClass::CalculateJump() {
 			GetActorImage()->AddYPosition(m_CurrentHeight);
 		}
 	}
-}
+} 
 
 inline bool PawnClass::CanFire() {
-	if (std::chrono::system_clock::now() - m_LastFireTime > m_FireDelayTime) {
-		m_LastFireTime = std::chrono::system_clock::now();
+	auto CurTime = std::chrono::system_clock::now();
+	if (CurTime - m_LastFireTime > m_FireDelayTime) {
+		m_LastFireTime = CurTime;
 		return true;
 	}
 	return false;
@@ -97,4 +114,10 @@ inline void PawnClass::DoJump() {
 		m_CurrentHeight = m_MaxHeight;
 		m_SaveYLocation = GetActorImage()->GetPosition().y;
 	}
+}
+
+inline void PawnClass::ClearJump() {
+	m_bIsJumping = false;
+	m_bLanded = true;
+	m_CurrentHeight = 0.f;
 }
