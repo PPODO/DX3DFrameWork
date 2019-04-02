@@ -2,7 +2,7 @@
 #include "Actor.h"
 #include <iostream>
 
-enum EObstacleType { EOT_HOLE, EOT_COUNT };
+enum EObstacleType { EOT_HOLE, EObstacleType_COUNT };
 
 class ObstacleClass : public Actor {
 private:

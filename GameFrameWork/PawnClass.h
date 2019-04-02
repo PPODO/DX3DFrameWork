@@ -1,5 +1,6 @@
 #pragma once
 #include "ProjectileClass.h"
+#include "AnimationClass.h"
 #include "Actor.h"
 #include <chrono>
 #include <vector>
@@ -9,9 +10,13 @@ class PawnClass : public Actor {
 private:
 	static RECT m_WindowSize;
 
-private: 
+private:
+	AnimationClass* m_PawnAnim;
 	class ObjectPoolClass* m_PoolManager;
 	TextureClass* m_CopyImage;
+
+protected:
+	int m_SpriteWidth, m_SpriteHeight;
 
 protected:
 	virtual void SpawnExplosionEffect();

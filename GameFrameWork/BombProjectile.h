@@ -4,7 +4,6 @@
 
 class BombProjectile : public ProjectileClass {
 private:
-	bool m_bIsExplosion;
 	D3DXMATRIX m_Matrix, m_CenterLocation, m_Rotation, m_Location, m_DefaultMaxtrix;
 	D3DXVECTOR3 m_PrevLocation;
 

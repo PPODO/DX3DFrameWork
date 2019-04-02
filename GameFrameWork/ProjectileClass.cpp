@@ -1,13 +1,17 @@
 #include "ProjectileClass.h"
 #include "EventClass.h"
 
-ProjectileClass::ProjectileClass() : m_Seta(0.f) {
+ProjectileClass::ProjectileClass() : m_Seta(0.f), m_Target(nullptr), m_bIsExplosion(false), m_ExplosionEffect(nullptr) {
 	m_CollisionType = ECT_PROJECTILE;
 	EventClass::GetInst()->BindCollisionEvent(this);
 	EventClass::GetInst()->BindTriggerEvent(this, [&]() { SetActorIsActivated(false); });
 }
 
 ProjectileClass::~ProjectileClass() {
+	if (m_ExplosionEffect) {
+		delete m_ExplosionEffect;
+		m_ExplosionEffect = nullptr;
+	}
 }
 
 bool ProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
@@ -17,15 +21,24 @@ bool ProjectileClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 }
 
 void ProjectileClass::Update(float DeltaTime, float ActorHeight) {
-	Actor::Update(DeltaTime, ActorHeight);
+	if (!m_bIsExplosion) {
+		Actor::Update(DeltaTime, ActorHeight);
 
-	if (GetActorIsActivated()) {
-		ProjectileMovementProcessing(DeltaTime);
+		if (m_Target && !m_Target->GetActorIsActivated()) {
+			m_bIsExplosion = true;
+			m_Target = nullptr;
+		}
+
+		if (GetActorIsActivated()) {
+			ProjectileMovementProcessing(DeltaTime);
+		}
 	}
 }
 
 void ProjectileClass::Render(LPD3DXSPRITE Sprite) {
-	Actor::Render(Sprite);
+	if (!m_bIsExplosion) {
+		Actor::Render(Sprite);
+	}
 }
 
 void ProjectileClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {

@@ -2,12 +2,16 @@
 #include "ParticleClass.h"
 #include "ObjectPoolClass.h"
 #include "SystemClass.h"
+#include "ActorClass.h"
+#include "InGameStage.h"
 #include "InputClass.h"
 #include "EventClass.h"
 #include "MachineGun.h"
+#include "HomingMissileProjectile.h"
 #include "Cannon.h"
 
 PlayerClass::PlayerClass(ObjectPoolClass* OP) : m_bIsTriple(false), m_bIsMoving(false) {
+	m_SpriteWidth = 6, m_SpriteHeight = 4;
 	SetPoolManager(OP);
 	
 	m_CollisionType = ECT_PLAYER;
@@ -53,6 +57,8 @@ bool PlayerClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	if (GetPoolManager()) {
 		GetPoolManager()->GetPoolObject("Projectile_Default", m_ProjectileObjects[EPT_DEFAULT], 20);
 		GetPoolManager()->GetPoolObject("Projectile_Bomb", m_ProjectileObjects[EPT_BOMB], 20);
+		GetPoolManager()->GetPoolObject("Projectile_Homing", m_ProjectileObjects[EPT_HOMINGMISSILE], 3);
+		GetPoolManager()->GetPoolObject("Projectile_Nuclear", m_ProjectileObjects[EPT_NUCLEAR], 5);
 	}
 	return true;
 }
@@ -61,6 +67,8 @@ void PlayerClass::SetupPlayerInput() {
 	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_NUMPAD0, IE_Pressed, std::bind(&PlayerClass::TestChangeMacineGun, this));
 	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_1, IE_Pressed, std::bind(&PlayerClass::ChangeOtherToMachineGun, this));
 	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_2, IE_Pressed, std::bind(&PlayerClass::ChangeOtherToCannon, this));
+	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_3, IE_Pressed, std::bind(&PlayerClass::ChangeHoming, this));
+	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_4, IE_Pressed, std::bind(&PlayerClass::ChangeNuclear, this));
 
 	SystemClass::GetInst()->GetInputManager()->BindActionDelegate(VK_W, IE_Pressed, std::bind(&PlayerClass::Jump, this));
 
@@ -91,13 +99,28 @@ void PlayerClass::Update(float DeltaTime, float ActorHeight) {
 					}
 					break;
 				case EWT_CANNON:
-					auto Projectile = FireProjectile(m_CurrentWeapon[m_WeaponType]->GetOffset() - m_CannonOffset + D3DXVECTOR3(0.f, m_CurrentWeapon[m_WeaponType]->GetActorImage()->GetImageCenter().y, 0.f));
-					if (Projectile) {
-						float CurrentAngle = m_CurrentWeapon[m_WeaponType]->GetCurrentAngle();
-						Projectile->SetMoveDirection(m_CurrentWeapon[m_WeaponType]->GetOffsetByAngle(CurrentAngle));
-						Projectile->SetProjectileSeta(CurrentAngle);
+					if (m_ProjectileType == EPT_HOMINGMISSILE && m_ProjectileObjects[EPT_HOMINGMISSILE].size() > 0) {
+						InGameStage* Stage = (InGameStage*)SystemClass::GetInst()->GetActorManager()->GetStage();
+						if (Stage) {
+							auto Objects = Stage->GetActivatedObjects();
+							for (auto& Object : Objects[EOT_ENEMY]) {
+								if (Object.second && Object.second->GetActorIsActivated() && Object.second->GetActorImage()->GetPosition().x > GetActorImage()->GetPosition().x + GetActorImage()->GetImageCenter().x) {
+									auto Projectile = FireProjectile(m_CurrentWeapon[m_WeaponType]->GetOffset() - m_CannonOffset + D3DXVECTOR3(0.f, m_CurrentWeapon[m_WeaponType]->GetActorImage()->GetImageCenter().y, 0.f));
+									if (Projectile && Projectile->GetProjectileType() == EPT_HOMINGMISSILE) {
+										Projectile->SetTargetActor(Object.second);
+									}
+								}
+							}
+						}
 					}
-					break;
+					else if (m_ProjectileObjects[m_ProjectileType].size() > 0){
+						auto Projectile = FireProjectile(m_CurrentWeapon[m_WeaponType]->GetOffset() - m_CannonOffset + D3DXVECTOR3(0.f, m_CurrentWeapon[m_WeaponType]->GetActorImage()->GetImageCenter().y, 0.f));
+						if (Projectile) {
+							float CurrentAngle = m_CurrentWeapon[m_WeaponType]->GetCurrentAngle();
+							Projectile->SetMoveDirection(m_CurrentWeapon[m_WeaponType]->GetOffsetByAngle(CurrentAngle));
+							Projectile->SetProjectileSeta(CurrentAngle);
+						}
+					}
 				}
 			}
 		}
@@ -214,4 +237,14 @@ void PlayerClass::ChangeOtherToMachineGun() {
 void PlayerClass::ChangeOtherToCannon() {
 	m_WeaponType = EWT_CANNON;
 	m_ProjectileType = EPT_BOMB;
+}
+
+void PlayerClass::ChangeHoming() {
+	m_WeaponType = EWT_CANNON;
+	m_ProjectileType = EPT_HOMINGMISSILE;
+}
+
+void PlayerClass::ChangeNuclear() {
+	m_WeaponType = EWT_CANNON;
+	m_ProjectileType = EPT_NUCLEAR;
 }

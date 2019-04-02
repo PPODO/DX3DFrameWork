@@ -6,6 +6,7 @@
 RECT PawnClass::m_WindowSize = { 0,0,0,0 };
 
 PawnClass::PawnClass() : m_bStartMoveToLocation(true), m_bUseGravity(true), m_bLanded(true), m_bIsJumping(false), m_SaveYLocation(0.f), m_CurrentHeight(0.f), m_MaxHeight(-12.5f), m_LocationIsHaveToGo(0.f) {
+	m_SpriteHeight = m_SpriteWidth = 0;
 	m_WindowSize = SystemClass::GetInst()->GetWindowSize();
 	m_bIsActivated = true;
 	m_bIsFire = false;
@@ -18,6 +19,10 @@ PawnClass::PawnClass() : m_bStartMoveToLocation(true), m_bUseGravity(true), m_bL
 }
 
 PawnClass::~PawnClass() {
+	if (m_PawnAnim) {
+		delete m_PawnAnim;
+		m_PawnAnim = nullptr;
+	}
 	if (m_CopyImage) {
 		delete m_CopyImage;
 		m_CopyImage = nullptr;
@@ -45,12 +50,22 @@ bool PawnClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 		return false;
 	}
 
+	m_PawnAnim = new AnimationClass;
+	if (!m_PawnAnim) {
+		return false;
+	}
+	m_PawnAnim->Init(GetActorImage(), m_SpriteWidth, m_SpriteHeight);
+
 	SetupPlayerInput();
 	return true;
 }
 
 void PawnClass::Update(float DeltaTime, float ActorHeight) {
 	Actor::Update(DeltaTime, ActorHeight);
+
+	if (m_PawnAnim) {
+		m_PawnAnim->Update(GetActorIsActivated(), GetActorImage());
+	}
 
 	if (m_bStartMoveToLocation) {
 		PlayStartMoveToLocation();
@@ -61,9 +76,9 @@ void PawnClass::Update(float DeltaTime, float ActorHeight) {
 	if (m_ExplosionEffect) {
 		if (m_CopyImage && m_ExplosionEffect->GetActorIsActivated()) {
 			m_CopyImage->AddYPosition(ActorHeight);
+			m_ExplosionEffect->GetActorImage()->AddYPosition(ActorHeight);
+			m_ExplosionEffect->Update(DeltaTime, ActorHeight);
 		}
-		m_ExplosionEffect->GetActorImage()->AddYPosition(ActorHeight);
-		m_ExplosionEffect->Update(DeltaTime, ActorHeight);
 	}
 }
 
@@ -79,8 +94,8 @@ void PawnClass::Render(LPD3DXSPRITE Sprite) {
 	if (m_ExplosionEffect) {
 		if (m_CopyImage && m_ExplosionEffect->GetActorIsActivated()) {
 			m_CopyImage->Render(Sprite);
+			m_ExplosionEffect->Render(Sprite);
 		}
-		m_ExplosionEffect->Render(Sprite);
 	}
 }
 
@@ -90,6 +105,7 @@ ProjectileClass* PawnClass::FireProjectile(const D3DXVECTOR3& Offset) {
 			auto Projectile = m_ProjectileObjects[m_ProjectileType].top();
 			if (Projectile) {
 				Projectile->SpawnActor(GetActorImage()->GetPosition() + Offset);
+				Projectile->SetOwner(this);
 				m_ActivatedProjectileObjects.push_back(Projectile);
 				m_ProjectileObjects[m_ProjectileType].pop();
 			}
@@ -115,6 +131,8 @@ void PawnClass::CalculateProjectile(const float& DeltaTime, float ActorHeight) {
 
 void PawnClass::SpawnExplosionEffect() {
 	if (m_ExplosionEffect) {
+		m_CopyImage->m_ImageRect = GetActorImage()->GetRect();
+		m_CopyImage->SetImageCenter(GetActorImage()->GetImageCenter());
 		m_CopyImage->SetPosition(GetActorImage()->GetPosition());
 		m_ExplosionEffect->SpawnActor(D3DXVECTOR3(GetActorImage()->GetPosition().x, GetActorImage()->GetPosition().y - (m_ExplosionEffect->GetActorImage()->GetImageCenter().y / 3), 0.f));
 	}

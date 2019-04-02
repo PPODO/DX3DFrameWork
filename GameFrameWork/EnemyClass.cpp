@@ -19,10 +19,11 @@ EnemyClass::~EnemyClass() {
 bool EnemyClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	PawnClass::Init(Device, FileSrc);
 
-	m_ExplosionEffect;
-	if (m_ExplosionEffect) {
-
+	m_ExplosionEffect = new ParticleClass;
+	if (!m_ExplosionEffect || !m_ExplosionEffect->Init(Device, L"Particle/Explosion_Player.png")) {
+		return false;
 	}
+	m_ExplosionEffect->BindEndNotification([this]() { SetActorIsActivated(false); m_ExplosionEffect->SetActorIsActivated(false); });
 
 	return true;
 }
@@ -30,14 +31,16 @@ bool EnemyClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 void EnemyClass::Update(float DeltaTime, float ActorHeight) {
 	PawnClass::Update(DeltaTime, ActorHeight);
 
-	if (CanFire()) {
-		auto Projectile = FireProjectile(D3DXVECTOR3(-(GetActorImage()->GetImageCenter().x / 2), GetActorImage()->GetImageCenter().y, 0.f));
-		if (Projectile) {
-			Projectile->SetMoveDirection(D3DXVECTOR3(0, 1.f, 0.f));
-			Projectile->SetProjectileSeta(0.f);
+	if (m_ExplosionEffect && !m_ExplosionEffect->GetActorIsActivated()) {
+		if (CanFire()) {
+			auto Projectile = FireProjectile(D3DXVECTOR3(-(GetActorImage()->GetImageCenter().x / 2), GetActorImage()->GetImageCenter().y, 0.f));
+			if (Projectile) {
+				Projectile->SetMoveDirection(D3DXVECTOR3(0, 1.f, 0.f));
+				Projectile->SetProjectileSeta(0.f);
+			}
 		}
+		EnemyMovementProcessing();
 	}
-	EnemyMovementProcessing();
 }
 
 void EnemyClass::Render(LPD3DXSPRITE Sprite) {
@@ -54,7 +57,15 @@ bool EnemyClass::IsItOutOfScreen() {
 
 void EnemyClass::CollisionEventBeginByOtherActor(Actor* OtherActor) {
 	if (OtherActor && OtherActor != this && OtherActor->GetActorCollisionType() != ECT_ENEMY) {
-
+		if (OtherActor->GetActorCollisionType() == ECT_PROJECTILE) {
+			ProjectileClass* Projectile = (ProjectileClass*)OtherActor;
+			if (Projectile && Projectile->GetOwner() && Projectile->GetOwner()->GetActorCollisionType() != ECT_ENEMY) {
+				SpawnExplosionEffect();
+			}
+		}
+		else if (OtherActor->GetActorCollisionType() == ECT_ALLBLOCK) {
+			SpawnExplosionEffect();
+		}
 	}
 }
 

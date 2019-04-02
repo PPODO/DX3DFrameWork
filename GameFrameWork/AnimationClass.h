@@ -4,9 +4,6 @@
 #include <vector>
 #include <chrono>
 
-static const int ParticleWidth = 4;
-static const int ParticleHeight = 2;
-
 class AnimationClass {
 private:
 	std::function<void()> m_TriggerEventWhenAnimationEnd;
@@ -16,13 +13,12 @@ private:
 private:
 	std::chrono::system_clock::time_point m_LastUpdateAnim;
 
-
 public:
 	AnimationClass();
 	~AnimationClass();
 
 public:
-	void Init(TextureClass* Texture);
+	void Init(TextureClass* Texture, int Width, int Height);
 	bool Update(const bool& bIsActivated, TextureClass* Texture);
 	void ClearAnimation();
 

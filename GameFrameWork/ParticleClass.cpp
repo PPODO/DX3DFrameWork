@@ -9,7 +9,7 @@ ParticleClass::~ParticleClass() {
 
 bool ParticleClass::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 	Actor::Init(Device, FileSrc);
-	AnimationClass::Init(GetActorImage());
+	AnimationClass::Init(GetActorImage(), 4, 2);
 
 	return true;
 }

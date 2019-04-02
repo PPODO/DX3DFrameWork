@@ -23,6 +23,7 @@ public:
 	void Render(LPD3DXSPRITE);
 
 public:
+	inline StageClass* GetStage() const { return m_Stages[m_CurrentStage]; }
 	inline unsigned short GetCurrentStage() const { return m_CurrentStage; }
 	void SetCurrentStage(unsigned short Value);
 };

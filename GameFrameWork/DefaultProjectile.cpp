@@ -7,7 +7,6 @@ DefaultProjectile::DefaultProjectile() {
 
 	m_MoveSpeed = { 20.f, 0.f };
 	D3DXMatrixTranslation(&m_DefaultMaxtrix, 0, 0, 0);
-	EventClass::GetInst()->BindCollisionEvent(this);
 }
 
 DefaultProjectile::~DefaultProjectile() {

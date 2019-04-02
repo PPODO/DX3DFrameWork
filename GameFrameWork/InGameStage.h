@@ -7,9 +7,9 @@
 #include <chrono>
 #include <map>
 
+enum EObjectType { EOT_ENEMY, EOT_OBSTACLE, EOT_COUNT };
+
 class InGameStage : public StageClass {
-protected:
-	enum EObjectType { EOT_ENEMY, EOT_OBSTACLE, EOT_COUNT };
 private:
 	class ObjectPoolClass* m_PoolManager;
 	class PlayerClass* m_Player;
@@ -51,5 +51,8 @@ public:
 	virtual void Render(LPD3DXSPRITE Sprite);
 	virtual void ChangeStageNotification() override;
 	virtual void ReleaseStageNotification() override;
+
+public:
+	inline std::vector<std::vector<std::pair<size_t, class Actor*>>>& GetActivatedObjects() { return m_ActivatedObjects; }
 
 };

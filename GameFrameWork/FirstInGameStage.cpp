@@ -14,7 +14,7 @@ FirstInGameStage::FirstInGameStage(ObjectPoolClass * OP, PlayerClass * Player) :
 
 	m_ActivatedObjects.resize(EOT_COUNT);
 	m_PoolObjects[EOT_ENEMY].resize(EET_COUNT);
-	m_PoolObjects[EOT_OBSTACLE].resize(EObstacleType::EOT_COUNT);
+	m_PoolObjects[EOT_OBSTACLE].resize(EObstacleType::EObstacleType_COUNT);
 
 	m_ObjectMaxSpawnCount.push_back(10);
 	m_ObjectMaxSpawnCount.push_back(10);
@@ -100,8 +100,8 @@ void FirstInGameStage::PickUpObject() {
 					float Height = 0;
 					switch (i) {
 					case EOT_OBSTACLE:
-						Height = (m_BackGroundImages[EBGT_GROUND].first->GetActorImage()->GetPosition().y - m_BackGroundImages[EBGT_GROUND].first->GetActorImage()->GetImageCenter().y) - m_ObstacleSpawnLocation.y;
-						Object->SpawnActor(m_ObstacleSpawnLocation + D3DXVECTOR3(0.f, Height, 0.f));
+		/*				Height = (m_BackGroundImages[EBGT_GROUND].first->GetActorImage()->GetPosition().y - m_BackGroundImages[EBGT_GROUND].first->GetActorImage()->GetImageCenter().y) - m_ObstacleSpawnLocation.y;
+						Object->SpawnActor(m_ObstacleSpawnLocation + D3DXVECTOR3(0.f, Height, 0.f));*/
 						break;
 					case EOT_ENEMY:
 						auto EnemyObject = (EnemyClass*)Object;

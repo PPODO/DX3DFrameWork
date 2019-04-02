@@ -1,7 +1,7 @@
 #include "BombProjectile.h"
 #include "EventClass.h"
 
-BombProjectile::BombProjectile() : m_ExplosionEffect(nullptr), m_bIsExplosion(false) {
+BombProjectile::BombProjectile() : m_ExplosionEffect(nullptr) {
 	m_ProjectileType = EPT_BOMB;
 	m_Name = "Projectile_Bomb";
 
@@ -10,7 +10,6 @@ BombProjectile::BombProjectile() : m_ExplosionEffect(nullptr), m_bIsExplosion(fa
 	m_PrevLocation = { 0.f,0.f,0.f };
 	m_MoveSpeed = { 15.f, 5.f };
 	D3DXMatrixTranslation(&m_DefaultMaxtrix, 0, 0, 0);
-	EventClass::GetInst()->BindCollisionEvent(this);
 }
 
 BombProjectile::~BombProjectile() {
@@ -27,10 +26,9 @@ bool BombProjectile::Init(LPDIRECT3DDEVICE9 Device, LPCTSTR FileSrc) {
 }
 
 void BombProjectile::Update(float DeltaTime, float ActorHeight) {
-	if (!m_bIsExplosion) {
-		ProjectileClass::Update(DeltaTime, ActorHeight);
-	}
-	else {
+	ProjectileClass::Update(DeltaTime, ActorHeight);
+
+	if (m_bIsExplosion) {
 		if (m_ExplosionEffect) {
 			m_ExplosionEffect->Update(DeltaTime, ActorHeight);
 		}
@@ -38,12 +36,13 @@ void BombProjectile::Update(float DeltaTime, float ActorHeight) {
 }
 
 void BombProjectile::Render(LPD3DXSPRITE Sprite) {
-	if (!m_bIsExplosion && GetActorIsActivated()) {
+	if (GetActorIsActivated()) {
 		Sprite->SetTransform(&m_Matrix);
 		ProjectileClass::Render(Sprite);
 		Sprite->SetTransform(&m_DefaultMaxtrix);
 	}
-	else {
+
+	if (m_bIsExplosion) {
 		if (m_ExplosionEffect) {
 			m_ExplosionEffect->Render(Sprite);
 		}
@@ -90,23 +89,19 @@ void BombProjectile::ClearObject() {
 
 void BombProjectile::ProjectileMovementProcessing(const float & DeltaTime) {
 	if (!m_bIsExplosion) {
-		D3DXMATRIX Rotation;
 		D3DXVECTOR3 NewLocation(0.f, 0.f, 0.f);
 		m_PrevLocation = GetActorImage()->GetPosition();
 
 		m_Height += Gravity;
 		m_SaveDeltaTime += DeltaTime;
 		NewLocation.x = m_MoveSpeed.x * cos(D3DXToRadian(90 - m_Seta)) * m_SaveDeltaTime;
-		NewLocation.y = -(m_MoveSpeed.y * sin(D3DXToRadian(90 - m_Seta)) - m_Height * (pow(m_SaveDeltaTime, 2) / 2));
-
+		NewLocation.y = -(m_MoveSpeed.y * sin(D3DXToRadian(90 + m_Seta)) - m_Height * (pow(m_SaveDeltaTime, 2) / 2));
 		GetActorImage()->AddPosition(NewLocation);
-
 		D3DXVECTOR3 Distance = GetActorImage()->GetPosition() - m_PrevLocation;
 
 		D3DXMatrixTranslation(&m_CenterLocation, -GetActorImage()->GetPosition().x, -GetActorImage()->GetPosition().y, 0.f);
-		D3DXMatrixRotationZ(&m_Rotation, D3DXToRadian(180));
-		D3DXMatrixRotationZ(&Rotation, -(atan2(Distance.x, Distance.y) * 2));
+		D3DXMatrixRotationZ(&m_Rotation, D3DXToRadian(90 - m_Seta) + D3DXToRadian(m_Seta) - (atan2(Distance.x, Distance.y)));
 		D3DXMatrixTranslation(&m_Location, GetActorImage()->GetPosition().x, GetActorImage()->GetPosition().y, 0.f);
-		m_Matrix = m_CenterLocation * m_Rotation * Rotation * m_Location;
+		m_Matrix = m_CenterLocation * m_Rotation * m_Location;
 	}
 }

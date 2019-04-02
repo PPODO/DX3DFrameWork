@@ -34,6 +34,8 @@ private:
 
 	void ChangeOtherToMachineGun();
 	void ChangeOtherToCannon();
+	void ChangeHoming();
+	void ChangeNuclear();
 
 protected:
 	virtual void SetupPlayerInput() override;
